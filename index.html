@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="ko"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#cfe3f5"><meta name="description" content="링크 하나로 들어가는 3D 겨울 캠퍼스 소셜 게임"><title>우리들의 겨울 캠퍼스</title>
+<style>
+:root{--bg:rgba(255,253,245,.93);--ink:#34506b;--acc:#ffc94d;--line:#cfe0ee;color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media(prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:rgba(30,40,56,.93);--ink:#e8f1fa;--line:#40536b;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:rgba(30,40,56,.93);--ink:#e8f1fa;--line:#40536b;color-scheme:dark}
+html,body{height:100%;margin:0;overflow:hidden;background:#cfe3f5;font-family:"Noto Sans KR","Apple SD Gothic Neo",system-ui,sans-serif;color:var(--ink);touch-action:none}
+canvas#w{position:fixed;inset:0;width:100%;height:100%}
+.p{background:var(--bg);border:1px solid var(--line);border-radius:14px;padding:6px 10px;font-size:13px;position:fixed;z-index:5}
+#loc{top:calc(8px + env(safe-area-inset-top,0px));left:8px}
+#top{top:calc(8px + env(safe-area-inset-top,0px));right:8px;display:flex;gap:8px;align-items:center}
+button{font:inherit;color:var(--ink);background:var(--acc);border:0;border-radius:12px;padding:8px 12px;font-weight:700;cursor:pointer}
+button.g{background:var(--line)}
+#bar{left:8px;right:8px;bottom:calc(8px + env(safe-area-inset-bottom,0px));display:flex;gap:6px;max-width:560px;margin:auto;padding:6px}
+#bar input{flex:1;min-width:0;font:inherit;border:1px solid var(--line);border-radius:10px;padding:8px;background:transparent;color:var(--ink)}
+#log{left:8px;bottom:calc(64px + env(safe-area-inset-bottom,0px));max-width:min(70vw,320px);font-size:12px;line-height:1.5;max-height:110px;overflow:hidden;pointer-events:none;opacity:.95}
+#log.big{max-height:240px}
+#joy{left:18px;bottom:calc(120px + env(safe-area-inset-bottom,0px));width:110px;height:110px;border-radius:50%;background:rgba(255,255,255,.4);border:2px solid var(--line);position:fixed;z-index:4;touch-action:none}
+#knob{position:absolute;left:35px;top:35px;width:40px;height:40px;border-radius:50%;background:var(--acc)}
+#acts{right:10px;bottom:calc(120px + env(safe-area-inset-bottom,0px));position:fixed;z-index:5;display:flex;flex-direction:column;gap:8px}
+.m{inset:0;margin:auto;height:fit-content;width:min(92vw,360px);z-index:9}
+#cc{inset:auto;right:12px;top:50%;transform:translateY(-50%);margin:0;width:300px;max-height:86vh;overflow:auto}
+@media(max-width:700px){#cc{left:8px;right:8px;top:auto;bottom:calc(8px + env(safe-area-inset-bottom,0px));transform:none;width:auto;max-height:48vh}}
+body.cr #bar,body.cr #joy,body.cr #acts,body.cr #log{display:none}
+.m h3{margin:0 0 6px}.row{display:flex;gap:5px;align-items:center;margin:5px 0;flex-wrap:wrap}.row b{width:48px;font-size:12px}
+.sw{width:26px;height:26px;border-radius:50%;border:3px solid transparent;padding:0}.sw.on{border-color:var(--ink)}
+.op{padding:4px 9px;font-size:12px;background:var(--line)}.op.on{background:var(--acc)}
+.m input,.m textarea{width:100%;box-sizing:border-box;font:inherit;border:1px solid var(--line);border-radius:10px;padding:8px;background:transparent;color:var(--ink)}
+#wl,#gl{max-height:150px;overflow:auto;font-size:12px;margin-top:6px}#gl{max-height:220px}#wl div,#gl div{padding:3px 0;border-bottom:1px dashed var(--line)}
+#sledbox canvas{display:block;width:100%;border-radius:10px;background:#fff}
+#toast{top:60px;left:50%;transform:translateX(-50%);opacity:0;transition:opacity .3s;pointer-events:none}
+[hidden]{display:none!important}
+</style></head><body>
+<canvas id="w"></canvas>
+<div class="p" id="loc">📍 중앙 광장</div>
+<div class="p" id="top"><span id="cnt">👥 1</span><button class="g" id="gbb">📖</button><button class="g" id="vb">🎥</button><button class="g" id="mb">👕</button></div>
+<div class="p" id="log"></div>
+<div id="joy"><div id="knob"></div></div>
+<div id="acts"><button id="act" hidden></button><button id="snow">⛄ 눈덩이</button></div>
+<div class="p" id="bar"><input id="msg" maxlength="40" placeholder="말풍선 메시지 (Enter)" autocomplete="off"><button id="send">보내기</button></div>
+<div class="p" id="toast"></div>
+<div class="p m" id="cc"><h3>❄️ 캐릭터 만들기</h3><input id="nm" maxlength="8" placeholder="닉네임 (최대 8자)"><div id="opts"></div><button id="go" style="width:100%;margin-top:8px">입장하기</button></div>
+<div class="p m" id="ww" hidden><h3>🌠 소원의 나무 (익명)</h3><textarea id="wt" rows="2" maxlength="60" placeholder="소원이나 고민을 적어보세요"></textarea><div class="row"><button id="wb">매달기</button><button class="g" id="wc">닫기</button></div><div id="wn" style="font-size:12px"></div><div id="wl"></div></div>
+<div class="p m" id="gb" hidden><h3>📖 방명록</h3><textarea id="gt" rows="2" maxlength="80" placeholder="다녀간 흔적을 남겨보세요"></textarea><div class="row"><button id="gs">남기기</button><button class="g" id="gc">닫기</button></div><div id="gn" style="font-size:12px"></div><div id="gl"></div></div>
+<div class="p m" id="sledbox" hidden><canvas id="sled"></canvas><div class="row"><span id="ss" style="flex:1">←→ / 화면 좌우 터치</span><button class="g" id="sx">닫기</button></div></div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script type="module">
+import {initializeApp} from 'https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js';
+import {getAuth,signInAnonymously} from 'https://www.gstatic.com/firebasejs/10.14.1/firebase-auth.js';
+import {getDatabase,ref,push,set,remove,onValue,onChildAdded,onDisconnect,query,orderByChild,limitToLast} from 'https://www.gstatic.com/firebasejs/10.14.1/firebase-database.js';
+// ▼▼ Firebase 설정값을 따옴표 안에 붙여넣으세요 (없으면 혼자 돌아다니는 모드로 실행) ▼▼
+const cfg={apiKey:'AIzaSyC6LbcGctWNMVrO4qwGjp-0IyfeteMiJ50',authDomain:'test-7e4a1.firebaseapp.com',databaseURL:'https://test-7e4a1-default-rtdb.firebaseio.com',projectId:'test-7e4a1',appId:'1:714101376856:web:978b08f331c48547cb472d'};
+// ▲▲ 여기까지 ▲▲
+const myId=Math.random().toString(36).slice(2,10);
+let boot=null,roomP=null;
+function init(){return boot||(boot=(async()=>{if(!cfg.databaseURL||!cfg.apiKey)return null;
+ try{const app=initializeApp(cfg);await signInAnonymously(getAuth(app));return getDatabase(app)}catch(e){console.warn('Firebase 연결 실패',e);return null}})())}
+// 방명록·소원: collection(name).orderBy().limit(n).onSnapshot(cb) / .add(obj)
+export async function getDb(){const d=await init();if(!d)return null;
+ return {collection(name){let n=50;const q={orderBy(){return q},limit(k){n=k;return q},add:o=>push(ref(d,name),o),
+  onSnapshot(cb,err){return onValue(query(ref(d,name),orderByChild('ts'),limitToLast(n)),s=>{const a=[];s.forEach(c=>{a.push(c.val())});a.reverse();cb({docs:a.map(v=>({data:()=>v}))})},err)}};return q}}}
+// 실시간 접속자(presence)와 채팅·눈덩이 이벤트
+export function getRoom(){return roomP||(roomP=(async()=>{const d=await init();if(!d)return null;
+ const mine=ref(d,'players/'+myId),hs=[];let cur=null,last={peers:[]};
+ const send=()=>cur?set(mine,{...cur,ts:Date.now()}).catch(()=>{}):Promise.resolve();
+ onValue(ref(d,'.info/connected'),s=>{if(s.val()){onDisconnect(mine).remove();send()}});
+ setInterval(send,10000);
+ onValue(ref(d,'players'),s=>{const now=Date.now(),peers=[];s.forEach(c=>{const v=c.val()||{};if(c.key!==myId&&now-(v.ts||0)>45000)return;const {ts,...pr}=v;peers.push({peer:c.key,isMe:c.key===myId,presence:pr})});last={peers};hs.forEach(h=>h(last))});
+ return {presence:o=>{cur=o;return send()},
+  onPeers(h){hs.push(h);h(last);return()=>hs.splice(hs.indexOf(h),1)},
+  async emit(topic,data){const r=push(ref(d,'events/'+topic),{id:myId,data,ts:Date.now()});setTimeout(()=>remove(r).catch(()=>{}),6000)},
+  on(topic,h){const t0=Date.now()-2000;return onChildAdded(query(ref(d,'events/'+topic),limitToLast(5)),c=>{const v=c.val()||{};if((v.ts||0)<t0)return;h({peer:v.id,sameTab:v.id===myId,data:v.data,topic})})}}})())}
+
+
+const T=THREE,$=s=>document.querySelector(s);
+const COL={skin:['#ffe0c7','#f3c9a0','#d9a273','#a8734a'],hair:['#3b2a20','#8a5a2b','#e8c26a','#e57a9a','#6aa7e8','#f4f4f4'],top:['#e85a5a','#4a90d9','#5fb36b','#f2b84b','#9b6bd1','#f58fb0'],bottom:['#33455c','#6b4a35','#4d4d57','#2f6b5a']};
+const OPT=[['hat','모자',['없음','털모자','산타']],['scarf','목도리',['없음','빨강','하늘']],['glass','안경',['없음','있음']]];
+const LAB={skin:'피부',hair:'머리',top:'상의',bottom:'하의'};
+let A={name:'',skin:0,hair:0,top:0,bottom:0,hat:1,scarf:1,glass:0};
+try{Object.assign(A,JSON.parse(localStorage.getItem('wc')||'{}'))}catch(e){}
+const BAD=/시발|씨발|병신|ㅅㅂ|ㅂㅅ|개새|좆|fuck|shit/gi,clean=s=>String(s).replace(BAD,'***');
+function toast(t){const e=$('#toast');e.textContent=t;e.style.opacity=1;clearTimeout(toast.t);toast.t=setTimeout(()=>e.style.opacity=0,2200)}
+
+// ---------- scene ----------
+const R=new T.WebGLRenderer({canvas:$('#w'),antialias:true});R.setPixelRatio(Math.min(devicePixelRatio,2));
+const S=new T.Scene();S.background=new T.Color(0xcfe3f5);S.fog=new T.Fog(0xcfe3f5,45,120);
+const C=new T.PerspectiveCamera(55,1,.1,200);
+S.add(new T.HemisphereLight(0xfff3d6,0xaec8e6,.95));const sun=new T.DirectionalLight(0xffe2a8,.7);sun.position.set(-20,30,10);S.add(sun);
+const MT=(c,e)=>new T.MeshStandardMaterial({color:c,roughness:.9,emissive:e||0});
+const add=(g,m,x,y,z)=>{const q=new T.Mesh(g,m);q.position.set(x,y,z);S.add(q);return q};
+add(new T.PlaneGeometry(170,170).rotateX(-Math.PI/2),MT(0xfaf7ee),0,0,0);
+add(new T.CylinderGeometry(13,13,.1,40),MT(0xe8f0f7),0,.05,0);
+add(new T.CylinderGeometry(11,11,.1,40),MT(0x9fd6f2),28,.06,22);
+add(new T.CylinderGeometry(9,9,.1,30),MT(0xf1e3c4),-28,.05,24);
+const slope=add(new T.BoxGeometry(12,.4,26),MT(0xffffff),30,1.6,-26);slope.rotation.x=.12;
+function bld(x,z,w,h,d,c){add(new T.BoxGeometry(w,h,d),MT(c),x,h/2,z);add(new T.ConeGeometry(Math.max(w,d)*.78,3,4),MT(0x9a6a58),x,h+1.5,z).rotation.y=Math.PI/4;
+ for(let i=0;i<3;i++)add(new T.PlaneGeometry(1.4,1.7),MT(0xffd36b,0xffc040),x-w/3+i*w/3,h*.55,z+d/2+.05);
+ const l=new T.PointLight(0xffc060,.6,18);l.position.set(x,3,z+d/2+2);S.add(l)}
+bld(-30,-32,14,8,9,0xf3e3c8);bld(-14,-48,9,6,7,0xe6d6c0);bld(16,-46,9,6,7,0xdde8f2);bld(-50,0,9,7,12,0xf0dcc0);bld(50,-5,9,7,12,0xe3ecf5);
+const LC=[0xff5a5a,0xffd24a,0x5ad2ff,0x7bff7b];
+function pine(x,z,s,lights){const g=new T.Group();g.position.set(x,0,z);g.scale.setScalar(s);S.add(g);
+ const a=(geo,m,y)=>{const q=new T.Mesh(geo,m);q.position.y=y;g.add(q)};a(new T.CylinderGeometry(.4,.5,1.5,8),MT(0x7a5a40),.75);
+ a(new T.ConeGeometry(2.4,3.2,10),MT(0x4f8a62),3);a(new T.ConeGeometry(1.8,2.8,10),MT(0xf4f8fb),4.7);a(new T.ConeGeometry(1.2,2.4,10),MT(0x5a9a70),6.2);
+ if(lights)for(let i=0;i<14;i++){const q=new T.Mesh(new T.SphereGeometry(.14,6,6),MT(0xffffff,LC[i%4]));const an=i*2.4,y=2+i*.34,r=2.2-i*.13;q.position.set(Math.cos(an)*r,y,Math.sin(an)*r);g.add(q)}}
+function snowman(x,z){const g=new T.Group();g.position.set(x,0,z);S.add(g);const m=MT(0xffffff);[[.9,.9],[.65,2],[.45,2.9]].forEach(([r,y])=>{const q=new T.Mesh(new T.SphereGeometry(r,12,10),m);q.position.y=y;g.add(q)});
+ const n=new T.Mesh(new T.ConeGeometry(.1,.5,6),MT(0xff8a30));n.position.set(0,2.9,.5);n.rotation.x=Math.PI/2;g.add(n);const sc=new T.Mesh(new T.TorusGeometry(.42,.1,6,12),MT(0xe0505a));sc.position.y=2.5;sc.rotation.x=Math.PI/2;g.add(sc)}
+let sd=7;const rnd=()=>(sd=(sd*9301+49297)%233280)/233280;
+pine(0,-36,2.2,true);for(let i=0;i<34;i++){const x=(rnd()-.5)*140,z=(rnd()-.5)*140;if(Math.hypot(x,z)>16&&Math.abs(x-28)+Math.abs(z-22)>16)pine(x,z,.8+rnd()*.7,i%3==0)}
+[[6,6],[-7,5],[-20,-8],[34,8],[22,-8],[-32,30],[8,-22],[-8,-24]].forEach(p=>snowman(p[0],p[1]));
+add(new T.CylinderGeometry(.15,.15,3.5,8),MT(0x555a66),4,1.75,-4);add(new T.SphereGeometry(.5,10,10),MT(0xfff0b0,0xffe080),4,3.7,-4);
+const N=1100,sp=new Float32Array(N*3);for(let i=0;i<N;i++){sp[i*3]=(Math.random()-.5)*80;sp[i*3+1]=Math.random()*30;sp[i*3+2]=(Math.random()-.5)*80}
+const sg=new T.BufferGeometry();sg.setAttribute('position',new T.BufferAttribute(sp,3));const snowP=new T.Points(sg,new T.PointsMaterial({color:0xffffff,size:.4,transparent:true,opacity:.9}));snowP.frustumCulled=false;S.add(snowP);
+const Z=[{n:'소원의 나무',x:0,z:-36,r:8,k:'wish'},{n:'학생회관',x:-30,z:-24,r:13,k:'hall'},{n:'눈썰매장',x:30,z:-26,r:12,k:'sled'},{n:'얼음 광장',x:28,z:22,r:13,k:'ice'},{n:'캠퍼스 산책로',x:-28,z:24,r:13,k:'walk'},{n:'중앙 광장',x:0,z:0,r:14,k:'plaza'}];
+
+// ---------- avatars ----------
+function spr(t,o){const c=document.createElement('canvas');c.width=o.w;c.height=o.h;const x=c.getContext('2d');x.fillStyle=o.bg;x.beginPath();x.roundRect(4,4,o.w-8,o.h-8,o.h/3);x.fill();x.fillStyle=o.fg;x.font='bold '+o.f+'px sans-serif';x.textAlign='center';x.textBaseline='middle';x.fillText(t,o.w/2,o.h/2);
+ const s=new T.Sprite(new T.SpriteMaterial({map:new T.CanvasTexture(c),depthTest:false,transparent:true}));s.scale.set(o.w/o.d,o.h/o.d,1);s.renderOrder=9;return s}
+function mk(a){const g=new T.Group(),cl=k=>(COL[k]||COL.skin)[a[k]]||COL[k][0],m=x=>new T.MeshStandardMaterial({color:x,roughness:.85});
+ const P=(geo,col,x,y,z)=>{const q=new T.Mesh(geo,m(col));q.position.set(x,y,z);g.add(q);return q};
+ P(new T.CylinderGeometry(.55,.65,1.1,14),cl('top'),0,1.05,0);P(new T.CylinderGeometry(.5,.5,.5,12),cl('bottom'),0,.25,0);
+ P(new T.SphereGeometry(.7,18,14),cl('skin'),0,2.15,0);P(new T.SphereGeometry(.74,18,10,0,6.29,0,1.55),cl('hair'),0,2.2,-.02);
+ [-.25,.25].forEach(x=>P(new T.SphereGeometry(.08,8,8),'#222',x,2.1,.64));
+ if(a.scarf)P(new T.TorusGeometry(.55,.16,8,16),a.scarf==1?'#e0505a':'#6bb8e8',0,1.62,0).rotation.x=Math.PI/2;
+ if(a.hat==1){P(new T.SphereGeometry(.77,16,10,0,6.29,0,1.25),'#d9464f',0,2.4,0);P(new T.SphereGeometry(.17,8,8),'#fff',0,3.15,0)}
+ if(a.hat==2){P(new T.ConeGeometry(.62,1.1,14),'#d93a3a',0,3.05,0).rotation.z=.2;P(new T.SphereGeometry(.16,8,8),'#fff',.3,3.55,0)}
+ if(a.glass)[-.27,.27].forEach(x=>P(new T.TorusGeometry(.17,.03,6,12),'#333',x,2.15,.67));
+ const nm=String(a.name||'').slice(0,8),lb=spr(nm,{w:240,h:64,f:34,bg:'rgba(255,253,245,.85)',fg:'#34506b',d:80});lb.position.y=3.8;g.add(lb);S.add(g);
+ const o={g,tx:0,tz:0,tr:0,bub:null,bt:0,say(t){if(o.bub)g.remove(o.bub);t=clean(t).slice(0,22);o.bub=spr(t,{w:t.length*38+70,h:90,f:36,bg:'#ffffff',fg:'#34506b',d:100});o.bub.position.y=4.8;g.add(o.bub);clearTimeout(o.bt);o.bt=setTimeout(()=>{g.remove(o.bub);o.bub=null},5000)}};return o}
+let me=mk(A);me.g.position.set(0,0,6);const remotes={};
+function rebuild(){const p=me.g.position.clone(),r=me.g.rotation.y;S.remove(me.g);me=mk(A);me.g.position.copy(p);me.g.rotation.y=r;pdirty=1}
+
+// ---------- creator ----------
+let creating=true,pdirty=1;
+function drawOpts(){const h=$('#opts');h.innerHTML='';
+ for(const k in LAB){const r=document.createElement('div');r.className='row';r.innerHTML='<b>'+LAB[k]+'</b>';COL[k].forEach((c,i)=>{const b=document.createElement('button');b.className='sw'+(A[k]==i?' on':'');b.style.background=c;b.onclick=()=>{A[k]=i;rebuild();drawOpts()};r.appendChild(b)});h.appendChild(r)}
+ OPT.forEach(([k,l,v])=>{const r=document.createElement('div');r.className='row';r.innerHTML='<b>'+l+'</b>';v.forEach((t,i)=>{const b=document.createElement('button');b.className='op'+(A[k]==i?' on':'');b.textContent=t;b.onclick=()=>{A[k]=i;rebuild();drawOpts()};r.appendChild(b)});h.appendChild(r)})}
+$('#nm').value=A.name;drawOpts();document.body.classList.add('cr');
+$('#go').onclick=()=>{A.name=($('#nm').value.trim()||'학생'+Math.floor(Math.random()*90+10)).slice(0,8);A.name=clean(A.name);try{localStorage.setItem('wc',JSON.stringify(A))}catch(e){}rebuild();creating=false;$('#cc').hidden=true;document.body.classList.remove('cr');applyView();pdirty=1};
+$('#mb').onclick=()=>{creating=true;$('#cc').hidden=false;document.body.classList.add('cr');applyView()};
+
+// ---------- input ----------
+const K={};let jv={x:0,y:0},jd=0;
+addEventListener('keydown',e=>{if(/INPUT|TEXTAREA/.test(e.target.tagName)){if(e.key=='Enter'&&e.target.id=='msg')sendMsg();return}
+ if(e.key=='Enter'){$('#msg').focus();return}K[e.key.toLowerCase()]=1;if(e.key==' ')throwBall()});
+addEventListener('keyup',e=>K[e.key.toLowerCase()]=0);
+const jy=$('#joy'),kb=$('#knob');
+function jm(e){const r=jy.getBoundingClientRect(),L=r.width/2;let dx=e.clientX-r.left-L,dy=e.clientY-r.top-L;const m=Math.hypot(dx,dy);if(m>L){dx*=L/m;dy*=L/m}jv={x:dx/L,y:dy/L};kb.style.transform='translate('+dx+'px,'+dy+'px)'}
+jy.addEventListener('pointerdown',e=>{jd=1;jy.setPointerCapture(e.pointerId);jm(e)});jy.addEventListener('pointermove',e=>{if(jd)jm(e)});
+['pointerup','pointercancel'].forEach(n=>jy.addEventListener(n,()=>{jd=0;jv={x:0,y:0};kb.style.transform=''}));
+
+// ---------- chat ----------
+let room=null,db=null,lastSend=0;
+function addLog(n,t){const l=$('#log'),d=document.createElement('div');d.textContent=n+': '+t;l.appendChild(d);while(l.children.length>10)l.firstChild.remove()}
+function sendMsg(){const i=$('#msg');let t=i.value.trim();if(!t||creating)return;if(Date.now()-lastSend<1500){toast('조금 천천히 보내주세요 ❄️');return}
+ lastSend=Date.now();t=clean(t).slice(0,40);i.value='';me.say(t);addLog(A.name,t);room&&room.emit('chat',{n:A.name,t}).catch(()=>{});i.blur()}
+$('#send').onclick=sendMsg;
+
+// ---------- snowballs ----------
+const balls=[];
+function spawnBall(x,z,dx,dz,own){const m=new T.Mesh(new T.SphereGeometry(.35,10,10),MT(0xffffff));m.position.set(x,1.8,z);S.add(m);balls.push({m,dx,dz,t:0,own})}
+function throwBall(){if(creating||G)return;const r=me.g.rotation.y,dx=Math.sin(r),dz=Math.cos(r),p=me.g.position;spawnBall(p.x+dx,p.z+dz,dx,dz,true);room&&room.emit('ball',{x:p.x+dx,z:p.z+dz,dx,dz}).catch(()=>{})}
+$('#snow').onclick=throwBall;
+
+// ---------- network ----------
+(async()=>{try{room=await getRoom()}catch(e){}
+ if(!room)return;toast('실시간 접속 중!');
+ room.onPeers(ch=>{const ids=new Set();ch.peers.forEach(p=>{if(p.isMe)return;ids.add(p.peer);const d=p.presence||{},a=d.a||{},key=JSON.stringify(a);let r=remotes[p.peer];
+  if(!r||r.key!==key){const pos=r?r.g.position.clone():new T.Vector3(+d.x||0,0,+d.z||0);if(r)S.remove(r.g);r=remotes[p.peer]=mk(a);r.key=key;r.g.position.copy(pos)}
+  r.tx=+d.x||0;r.tz=+d.z||0;r.tr=+d.r||0});
+  for(const k in remotes)if(!ids.has(k)){S.remove(remotes[k].g);delete remotes[k]}$('#cnt').textContent='👥 '+(ids.size+1);pdirty=1});
+ room.on('chat',m=>{if(m.sameTab)return;const t=clean(String((m.data||{}).t||'')).slice(0,40);if(!t)return;const r=remotes[m.peer];r&&r.say(t);addLog(String((m.data||{}).n||'익명').slice(0,8),t)});
+ room.on('ball',m=>{if(m.sameTab)return;const d=m.data||{};if([d.x,d.z,d.dx,d.dz].every(Number.isFinite))spawnBall(d.x,d.z,d.dx,d.dz,false)});
+})();
+
+// ---------- wish tree ----------
+let cards=[],wishes=[];
+function renderWishes(list){wishes=list;cards.forEach(c=>S.remove(c));cards=[];const l=$('#wl');l.innerHTML='';
+ list.forEach((w,i)=>{const t=clean(String(w.t||'')).slice(0,60),d=document.createElement('div');d.textContent='💌 '+t;l.appendChild(d);
+  const s=spr(t.slice(0,9),{w:300,h:80,f:34,bg:'#fff6c9',fg:'#5a4a2a',d:110});const an=i*2.4;s.position.set(Math.cos(an)*3.4,2.5+(i%6)*.9,-36+Math.sin(an)*3.4);S.add(s);cards.push(s)})}
+(async()=>{try{db=await getDb()}catch(e){}
+ if(!db){$('#wn').textContent='공유 링크로 접속하면 모두의 소원이 함께 보여요.';return}
+ try{db.collection('wishes').orderBy('ts','desc').limit(24).onSnapshot(s=>renderWishes((s.docs||[]).map(d=>d.data?d.data():d)),()=>{})}catch(e){}})();
+$('#wb').onclick=async()=>{const i=$('#wt'),t=clean(i.value.trim()).slice(0,60);if(!t)return;
+ if(db){try{await db.collection('wishes').add({t,ts:Date.now()})}catch(e){toast('소원을 저장하지 못했어요');return}}else renderWishes([{t},...wishes]);i.value='';toast('소원이 나무에 걸렸어요 🌠')};
+$('#wc').onclick=()=>$('#ww').hidden=true;
+
+// ---------- guestbook ----------
+let gb=[],gbLast=0;const gbKey='wcgb';
+const gbLocal=()=>{try{return JSON.parse(localStorage.getItem(gbKey)||'[]')}catch(e){return[]}};
+const gbMerge=l=>{const k=new Set(l.map(w=>w.ts+'|'+w.t));return l.concat(gbLocal().filter(w=>!k.has(w.ts+'|'+w.t))).sort((a,b)=>b.ts-a.ts).slice(0,40)};
+function renderGb(list){gb=list;const l=$('#gl');l.innerHTML='';list.forEach(w=>{const d=document.createElement('div');let ds='';try{ds=new Date(+w.ts).toLocaleDateString('ko-KR',{month:'numeric',day:'numeric'})}catch(e){}d.textContent='✏️ '+clean(String(w.n||'익명')).slice(0,8)+' ('+ds+'): '+clean(String(w.t||'')).slice(0,80);l.appendChild(d)})}
+(async()=>{let d=null;try{d=await getDb()}catch(e){}
+ renderGb(gbLocal());if(!d){$('#gn').textContent='📱 지금은 이 기기에만 저장돼요 (서버 연결 전)';return}$('#gn').textContent='☁️ 모두의 방명록이 서버에 저장돼요';
+ try{d.collection('guestbook').orderBy('ts','desc').limit(40).onSnapshot(s=>renderGb(gbMerge((s.docs||[]).map(x=>x.data?x.data():x))),()=>{})}catch(e){}})();
+$('#gs').onclick=async()=>{const i=$('#gt'),t=clean(i.value.trim()).slice(0,80);if(!t)return;if(Date.now()-gbLast<3000){toast('잠시 후 다시 남겨주세요');return}gbLast=Date.now();const e={n:A.name||'익명',t,ts:Date.now()};
+ try{localStorage.setItem(gbKey,JSON.stringify([e,...gbLocal()].slice(0,40)))}catch(x){}
+ renderGb(gbMerge(gb));let ok=false;
+ if(db){try{await db.collection('guestbook').add(e);ok=true}catch(x){}}
+ $('#gn').textContent=ok?'☁️ 서버에 저장됐어요':'📱 이 기기에 저장됐어요 (서버 연결 안 됨)';i.value='';toast(ok?'방명록에 남겼어요 📖':'이 기기에만 저장됐어요 📱')};
+$('#gbb').onclick=()=>$('#gb').hidden=false;$('#gc').onclick=()=>$('#gb').hidden=true;
+
+// ---------- sled minigame ----------
+const sc=$('#sled'),sx=sc.getContext('2d');sc.width=360;sc.height=500;let G=null,best=+(()=>{try{return localStorage.getItem('sb')}catch(e){}})()||0,sk=0;
+function sledStart(){G={x:180,o:[],d:0,sp:200,t:0,over:0};$('#sledbox').hidden=false}
+function sledStep(dt){if(!G)return;const g=G;
+ if(!g.over){const dir=(K.arrowleft||K.a?-1:0)+(K.arrowright||K.d?1:0)||sk;g.x=Math.max(30,Math.min(330,g.x+dir*260*dt));g.d+=g.sp*dt/20;g.sp=Math.min(520,g.sp+8*dt);g.t-=dt;
+  if(g.t<=0){g.o.push({x:30+Math.random()*300,y:-30,e:['⛄','🌲','🪨'][Math.floor(Math.random()*3)]});g.t=Math.max(.35,.9-g.d/400)}
+  g.o.forEach(o=>o.y+=g.sp*dt);g.o=g.o.filter(o=>o.y<540);
+  if(g.o.some(o=>Math.abs(o.x-g.x)<26&&Math.abs(o.y-430)<30)){g.over=1;if(g.d>best){best=Math.floor(g.d);try{localStorage.setItem('sb',best)}catch(e){}}}}
+ sx.fillStyle='#f4f9ff';sx.fillRect(0,0,360,500);sx.fillStyle='#dcebf8';for(let i=0;i<8;i++)sx.fillRect(0,((g.d*20+i*70)%500),360,3);
+ sx.font='34px serif';sx.textAlign='center';g.o.forEach(o=>sx.fillText(o.e,o.x,o.y+12));sx.fillText('🛷',g.x,445);
+ sx.fillStyle='#34506b';sx.font='bold 18px sans-serif';sx.textAlign='left';sx.fillText(Math.floor(g.d)+'m  (최고 '+best+'m)',10,26);
+ if(g.over){sx.textAlign='center';sx.font='bold 26px sans-serif';sx.fillText('쿵! '+Math.floor(g.d)+'m',180,230);sx.font='16px sans-serif';sx.fillText('화면을 탭하면 다시 시작',180,262)}}
+sc.addEventListener('pointerdown',e=>{if(G&&G.over){sledStart();return}const r=sc.getBoundingClientRect();sk=e.clientX<r.left+r.width/2?-1:1});
+addEventListener('pointerup',()=>sk=0);
+$('#sx').onclick=()=>{G=null;$('#sledbox').hidden=true};
+
+// ---------- actions ----------
+let cz=null,vi=0;const VW=[['기본',16,16],['가까이',8,9],['하늘에서',34,6]];
+$('#vb').onclick=()=>{vi=(vi+1)%3;toast('시점: '+VW[vi][0])};
+function applyView(){const w=innerWidth,h=innerHeight;if(creating){if(w>700)C.setViewOffset(w,h,w*.17,0,w,h);else C.setViewOffset(w,h,0,h*.2,w,h)}else C.clearViewOffset()}
+$('#act').onclick=()=>{if(!cz)return;if(cz.k=='sled')sledStart();else if(cz.k=='wish')$('#ww').hidden=false;else if(cz.k=='hall')$('#gb').hidden=false};
+const AL={sled:'🎿 썰매 타기',wish:'🌠 소원 남기기',hall:'📖 방명록 쓰기'};
+
+// ---------- loop ----------
+function resize(){R.setSize(innerWidth,innerHeight,false);C.aspect=innerWidth/innerHeight;C.updateProjectionMatrix();applyView()}addEventListener('resize',resize);resize();
+let last=performance.now(),pt=0,face=0,lastP='';
+function tick(t){requestAnimationFrame(tick);const dt=Math.min((t-last)/1000,.05);last=t;const p=me.g.position;
+ let mx=(K.arrowright||K.d?1:0)-(K.arrowleft||K.a?1:0)+jv.x,mz=(K.arrowdown||K.s?1:0)-(K.arrowup||K.w?1:0)+jv.y;const L=Math.hypot(mx,mz);
+ if(!creating&&!G&&L>.12){const s=Math.min(1,L);mx/=L;mz/=L;p.x=Math.max(-62,Math.min(62,p.x+mx*7*s*dt));p.z=Math.max(-62,Math.min(62,p.z+mz*7*s*dt));face=Math.atan2(mx,mz);p.y=Math.abs(Math.sin(t*.012))*.18}else p.y=0;
+ if(creating)face+=dt*.9;let d=face-me.g.rotation.y;d=Math.atan2(Math.sin(d),Math.cos(d));me.g.rotation.y+=d*Math.min(1,dt*12);
+ for(const k in remotes){const r=remotes[k],q=r.g.position;const mv=Math.hypot(r.tx-q.x,r.tz-q.z);q.x+=(r.tx-q.x)*Math.min(1,dt*8);q.z+=(r.tz-q.z)*Math.min(1,dt*8);q.y=mv>.3?Math.abs(Math.sin(t*.012))*.18:0;let e=r.tr-r.g.rotation.y;e=Math.atan2(Math.sin(e),Math.cos(e));r.g.rotation.y+=e*Math.min(1,dt*10)}
+ for(let i=balls.length-1;i>=0;i--){const b=balls[i];b.t+=dt;b.m.position.x+=b.dx*18*dt;b.m.position.z+=b.dz*18*dt;b.m.position.y=1.8-b.t*.4;
+  if(!b.own&&Math.hypot(b.m.position.x-p.x,b.m.position.z-p.z)<1.1){me.say('앗 차가워!');p.x+=b.dx*2;p.z+=b.dz*2;b.t=9}
+  if(b.t>1.6){S.remove(b.m);balls.splice(i,1)}}
+ const pa=snowP.geometry.attributes.position;for(let i=0;i<N;i++){let y=pa.array[i*3+1]-dt*(2+i%5*.3);if(y<0)y+=30;pa.array[i*3+1]=y;pa.array[i*3]+=Math.sin(t*.001+i)*dt*.4}pa.needsUpdate=true;snowP.position.set(p.x,0,p.z);
+ cz=Z.find(z=>Math.hypot(p.x-z.x,p.z-z.z)<z.r)||{n:'캠퍼스 산책로',k:'walk'};$('#loc').textContent='📍 '+cz.n;const ab=$('#act');ab.hidden=!AL[cz.k];if(AL[cz.k])ab.textContent=AL[cz.k];
+ if(creating)C.position.lerp(new T.Vector3(p.x,3.6,p.z+7.5),.2),C.lookAt(p.x,2,p.z);else{const v=VW[vi];C.position.lerp(new T.Vector3(p.x,v[1],p.z+v[2]),Math.min(1,dt*5));C.lookAt(p.x,vi==1?1.5:0,p.z-(vi==2?0:1))}
+ pt+=dt;if(room&&pt>.12){pt=0;const s=JSON.stringify([p.x.toFixed(1),p.z.toFixed(1),face.toFixed(2)]);if(s!==lastP||pdirty){lastP=s;pdirty=0;room.presence({x:+p.x.toFixed(1),z:+p.z.toFixed(1),r:+face.toFixed(2),a:A}).catch(()=>{})}}
+ sledStep(dt);R.render(S,C)}
+requestAnimationFrame(tick);
+
+</script></body></html>
