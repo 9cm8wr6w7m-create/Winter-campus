@@ -35,11 +35,11 @@ body.cr #bar,body.cr #joy,body.cr #acts,body.cr #log{display:none}
 </style></head><body>
 <canvas id="w"></canvas>
 <div class="p" id="loc">📍 중앙 광장</div>
-<div class="p" id="top"><span id="cnt">👥 1</span><button class="g" id="gbb">📖</button><button class="g" id="vb">🎥</button><button class="g" id="mb">👕</button></div>
+<div class="p" id="top"><span id="cnt">👥 1</span><button class="g" id="sb">🔊</button><button class="g" id="gbb">📖</button><button class="g" id="vb">🎥</button><button class="g" id="mb">👕</button></div>
 <div class="p" id="log"></div>
 <div id="joy"><div id="knob"></div></div>
 <div id="acts"><button id="act" hidden></button><button id="snow">⛄ 눈덩이</button></div>
-<div class="p" id="bar"><input id="msg" maxlength="40" placeholder="말풍선 메시지 (Enter)" autocomplete="off"><button id="send">보내기</button></div>
+<div class="p" id="bar"><input id="msg" maxlength="60" placeholder="말풍선 메시지 (Enter)" autocomplete="off"><button id="send">보내기</button></div>
 <div class="p" id="toast"></div>
 <div class="p m" id="cc"><h3>❄️ 캐릭터 만들기</h3><input id="nm" maxlength="8" placeholder="닉네임 (최대 8자)"><div id="opts"></div><button id="go" style="width:100%;margin-top:8px">입장하기</button></div>
 <div class="p m" id="ww" hidden><h3>🌠 소원의 나무 (익명)</h3><textarea id="wt" rows="2" maxlength="60" placeholder="소원이나 고민을 적어보세요"></textarea><div class="row"><button id="wb">매달기</button><button class="g" id="wc">닫기</button></div><div id="wn" style="font-size:12px"></div><div id="wl"></div></div>
@@ -95,8 +95,10 @@ add(new T.CylinderGeometry(13,13,.1,40),MT(0xe8f0f7),0,.05,0);
 add(new T.CylinderGeometry(11,11,.1,40),MT(0x9fd6f2),28,.06,22);
 add(new T.CylinderGeometry(9,9,.1,30),MT(0xf1e3c4),-28,.05,24);
 const slope=add(new T.BoxGeometry(12,.4,26),MT(0xffffff),30,1.6,-26);slope.rotation.x=.12;
-function bld(x,z,w,h,d,c){add(new T.BoxGeometry(w,h,d),MT(c),x,h/2,z);add(new T.ConeGeometry(Math.max(w,d)*.78,3,4),MT(0x9a6a58),x,h+1.5,z).rotation.y=Math.PI/4;
- for(let i=0;i<3;i++)add(new T.PlaneGeometry(1.4,1.7),MT(0xffd36b,0xffc040),x-w/3+i*w/3,h*.55,z+d/2+.05);
+function bld(x,z,w,h,d,c){add(new T.BoxGeometry(w,h,d),MT(c),x,h/2,z);const R=Math.max(w,d)*.78;add(new T.ConeGeometry(R,3,4),MT(0x9a6a58),x,h+1.5,z).rotation.y=Math.PI/4;add(new T.ConeGeometry(R*.79,2.37,4),MT(0xffffff),x,h+3.12-1.185,z).rotation.y=Math.PI/4;
+ add(new T.BoxGeometry(.8,2,.8),MT(0x8a5a48),x+w*.25,h+2.2,z);add(new T.BoxGeometry(1,.22,1),MT(0xffffff),x+w*.25,h+3.25,z);
+ add(new T.BoxGeometry(1.3,2.2,.15),MT(0x7a5a40),x,1.1,z+d/2+.08);add(new T.SphereGeometry(.07,6,6),MT(0xffd36b,0xffc040),x+.4,1.1,z+d/2+.2);
+ for(let i=0;i<3;i++){const wx=x-w/3+i*w/3,wy=h*.6;add(new T.BoxGeometry(1.7,1.9,.08),MT(0xffffff),wx,wy,z+d/2+.03);add(new T.PlaneGeometry(1.4,1.6),MT(0xffd36b,0xffc040),wx,wy,z+d/2+.09)}
  const l=new T.PointLight(0xffc060,.6,18);l.position.set(x,3,z+d/2+2);S.add(l)}
 bld(-30,-32,14,8,9,0xf3e3c8);bld(-14,-48,9,6,7,0xe6d6c0);bld(16,-46,9,6,7,0xdde8f2);bld(-50,0,9,7,12,0xf0dcc0);bld(50,-5,9,7,12,0xe3ecf5);
 const LC=[0xff5a5a,0xffd24a,0x5ad2ff,0x7bff7b];
@@ -104,12 +106,19 @@ function pine(x,z,s,lights){const g=new T.Group();g.position.set(x,0,z);g.scale.
  const a=(geo,m,y)=>{const q=new T.Mesh(geo,m);q.position.y=y;g.add(q)};a(new T.CylinderGeometry(.4,.5,1.5,8),MT(0x7a5a40),.75);
  a(new T.ConeGeometry(2.4,3.2,10),MT(0x4f8a62),3);a(new T.ConeGeometry(1.8,2.8,10),MT(0xf4f8fb),4.7);a(new T.ConeGeometry(1.2,2.4,10),MT(0x5a9a70),6.2);
  if(lights)for(let i=0;i<14;i++){const q=new T.Mesh(new T.SphereGeometry(.14,6,6),MT(0xffffff,LC[i%4]));const an=i*2.4,y=2+i*.34,r=2.2-i*.13;q.position.set(Math.cos(an)*r,y,Math.sin(an)*r);g.add(q)}}
-function snowman(x,z){const g=new T.Group();g.position.set(x,0,z);S.add(g);const m=MT(0xffffff);[[.9,.9],[.65,2],[.45,2.9]].forEach(([r,y])=>{const q=new T.Mesh(new T.SphereGeometry(r,12,10),m);q.position.y=y;g.add(q)});
- const n=new T.Mesh(new T.ConeGeometry(.1,.5,6),MT(0xff8a30));n.position.set(0,2.9,.5);n.rotation.x=Math.PI/2;g.add(n);const sc=new T.Mesh(new T.TorusGeometry(.42,.1,6,12),MT(0xe0505a));sc.position.y=2.5;sc.rotation.x=Math.PI/2;g.add(sc)}
+function snowman(x,z){const g=new T.Group();g.position.set(x,0,z);S.add(g);const m=MT(0xffffff),k=MT(0x222222),w=(geo,mt,px,py,pz)=>{const q=new T.Mesh(geo,mt);q.position.set(px,py,pz);g.add(q);return q};
+ [[.95,.9],[.68,2.05],[.48,2.95]].forEach(([r,y])=>w(new T.SphereGeometry(r,14,12),m,0,y,0));w(new T.ConeGeometry(.1,.5,6),MT(0xff8a30),0,2.95,.55).rotation.x=Math.PI/2;
+ [-1,1].forEach(s=>{w(new T.SphereGeometry(.06,6,6),k,s*.17,3.08,.42);w(new T.CylinderGeometry(.04,.04,1,5),MT(0x7a5a40),s*.95,2.15,0).rotation.z=s*-1});
+ [2.3,1.9,1.5].forEach(y=>w(new T.SphereGeometry(.06,6,6),k,0,y,.66));w(new T.TorusGeometry(.44,.1,6,12),MT(0xe0505a),0,2.55,0).rotation.x=Math.PI/2;
+ w(new T.CylinderGeometry(.34,.34,.5,10),k,0,3.5,0);w(new T.CylinderGeometry(.5,.5,.06,12),k,0,3.27,0)}
 let sd=7;const rnd=()=>(sd=(sd*9301+49297)%233280)/233280;
 pine(0,-36,2.2,true);for(let i=0;i<34;i++){const x=(rnd()-.5)*140,z=(rnd()-.5)*140;if(Math.hypot(x,z)>16&&Math.abs(x-28)+Math.abs(z-22)>16)pine(x,z,.8+rnd()*.7,i%3==0)}
 [[6,6],[-7,5],[-20,-8],[34,8],[22,-8],[-32,30],[8,-22],[-8,-24]].forEach(p=>snowman(p[0],p[1]));
 add(new T.CylinderGeometry(.15,.15,3.5,8),MT(0x555a66),4,1.75,-4);add(new T.SphereGeometry(.5,10,10),MT(0xfff0b0,0xffe080),4,3.7,-4);
+function bench(x,z,r){const g=new T.Group();g.position.set(x,0,z);g.rotation.y=r;S.add(g);const w=(geo,c,px,py,pz)=>{const q=new T.Mesh(geo,MT(c));q.position.set(px,py,pz);g.add(q)};w(new T.BoxGeometry(2.6,.2,.8),0x8a5a40,0,.9,0);w(new T.BoxGeometry(2.6,.7,.12),0x8a5a40,0,1.4,-.36);w(new T.BoxGeometry(2.7,.1,.9),0xffffff,0,1.04,0);[-1.1,1.1].forEach(s=>w(new T.BoxGeometry(.15,.9,.7),0x4a4a52,s,.45,0))}
+[[-9,8,.3],[9,-8,-.4],[-8,-10,Math.PI],[26,10,0],[-22,16,.5],[-36,-16,0]].forEach(b=>bench(b[0],b[1],b[2]));
+for(let i=0;i<8;i++){const an=i/8*6.283,lx=Math.cos(an)*15,lz=Math.sin(an)*15;add(new T.CylinderGeometry(.1,.12,3.2,8),MT(0x555a66),lx,1.6,lz);add(new T.SphereGeometry(.4,10,10),MT(0xfff0b0,0xffe080),lx,3.4,lz)}
+
 const N=1100,sp=new Float32Array(N*3);for(let i=0;i<N;i++){sp[i*3]=(Math.random()-.5)*80;sp[i*3+1]=Math.random()*30;sp[i*3+2]=(Math.random()-.5)*80}
 const sg=new T.BufferGeometry();sg.setAttribute('position',new T.BufferAttribute(sp,3));const snowP=new T.Points(sg,new T.PointsMaterial({color:0xffffff,size:.4,transparent:true,opacity:.9}));snowP.frustumCulled=false;S.add(snowP);
 const Z=[{n:'소원의 나무',x:0,z:-36,r:8,k:'wish'},{n:'학생회관',x:-30,z:-24,r:13,k:'hall'},{n:'눈썰매장',x:30,z:-26,r:12,k:'sled'},{n:'얼음 광장',x:28,z:22,r:13,k:'ice'},{n:'캠퍼스 산책로',x:-28,z:24,r:13,k:'walk'},{n:'중앙 광장',x:0,z:0,r:14,k:'plaza'}];
@@ -117,17 +126,25 @@ const Z=[{n:'소원의 나무',x:0,z:-36,r:8,k:'wish'},{n:'학생회관',x:-30,z
 // ---------- avatars ----------
 function spr(t,o){const c=document.createElement('canvas');c.width=o.w;c.height=o.h;const x=c.getContext('2d');x.fillStyle=o.bg;x.beginPath();x.roundRect(4,4,o.w-8,o.h-8,o.h/3);x.fill();x.fillStyle=o.fg;x.font='bold '+o.f+'px sans-serif';x.textAlign='center';x.textBaseline='middle';x.fillText(t,o.w/2,o.h/2);
  const s=new T.Sprite(new T.SpriteMaterial({map:new T.CanvasTexture(c),depthTest:false,transparent:true}));s.scale.set(o.w/o.d,o.h/o.d,1);s.renderOrder=9;return s}
+function bubSpr(t){const L=[];for(let i=0;i<t.length&&L.length<5;i+=12)L.push(t.slice(i,i+12));const w=Math.max(L.reduce((m,s)=>Math.max(m,s.length),0)*38+60,120),h=L.length*46+34,c=document.createElement('canvas');c.width=w;c.height=h;const x=c.getContext('2d');x.fillStyle='#fff';x.strokeStyle='#cfe0ee';x.lineWidth=4;x.beginPath();x.roundRect(4,4,w-8,h-8,24);x.fill();x.stroke();x.fillStyle='#34506b';x.font='bold 34px sans-serif';x.textAlign='center';x.textBaseline='middle';L.forEach((s,i)=>x.fillText(s,w/2,40+i*46));
+ const sp=new T.Sprite(new T.SpriteMaterial({map:new T.CanvasTexture(c),depthTest:false,transparent:true}));sp.scale.set(w/100,h/100,1);sp.renderOrder=9;return sp}
+Z.forEach(z=>{const px=z.x+z.r*.5,pz=z.z+z.r*.5;add(new T.CylinderGeometry(.1,.1,5,6),MT(0x7a5a40),px,2.5,pz);const s=spr(z.n,{w:300,h:80,f:36,bg:'#fff6c9',fg:'#5a4a2a',d:90});s.position.set(px,5.6,pz);S.add(s)});
 function mk(a){const g=new T.Group(),cl=k=>(COL[k]||COL.skin)[a[k]]||COL[k][0],m=x=>new T.MeshStandardMaterial({color:x,roughness:.85});
  const P=(geo,col,x,y,z)=>{const q=new T.Mesh(geo,m(col));q.position.set(x,y,z);g.add(q);return q};
- P(new T.CylinderGeometry(.55,.65,1.1,14),cl('top'),0,1.05,0);P(new T.CylinderGeometry(.5,.5,.5,12),cl('bottom'),0,.25,0);
- P(new T.SphereGeometry(.7,18,14),cl('skin'),0,2.15,0);P(new T.SphereGeometry(.74,18,10,0,6.29,0,1.55),cl('hair'),0,2.2,-.02);
- [-.25,.25].forEach(x=>P(new T.SphereGeometry(.08,8,8),'#222',x,2.1,.64));
- if(a.scarf)P(new T.TorusGeometry(.55,.16,8,16),a.scarf==1?'#e0505a':'#6bb8e8',0,1.62,0).rotation.x=Math.PI/2;
- if(a.hat==1){P(new T.SphereGeometry(.77,16,10,0,6.29,0,1.25),'#d9464f',0,2.4,0);P(new T.SphereGeometry(.17,8,8),'#fff',0,3.15,0)}
- if(a.hat==2){P(new T.ConeGeometry(.62,1.1,14),'#d93a3a',0,3.05,0).rotation.z=.2;P(new T.SphereGeometry(.16,8,8),'#fff',.3,3.55,0)}
- if(a.glass)[-.27,.27].forEach(x=>P(new T.TorusGeometry(.17,.03,6,12),'#333',x,2.15,.67));
- const nm=String(a.name||'').slice(0,8),lb=spr(nm,{w:240,h:64,f:34,bg:'rgba(255,253,245,.85)',fg:'#34506b',d:80});lb.position.y=3.8;g.add(lb);S.add(g);
- const o={g,tx:0,tz:0,tr:0,bub:null,bt:0,say(t){if(o.bub)g.remove(o.bub);t=clean(t).slice(0,22);o.bub=spr(t,{w:t.length*38+70,h:90,f:36,bg:'#ffffff',fg:'#34506b',d:100});o.bub.position.y=4.8;g.add(o.bub);clearTimeout(o.bt);o.bt=setTimeout(()=>{g.remove(o.bub);o.bub=null},5000)}};return o}
+ const sk=cl('skin'),hr=cl('hair'),tp=cl('top');
+ P(new T.CylinderGeometry(.52,.66,1.1,16),tp,0,1.1,0);[1.35,1.1].forEach(y=>P(new T.SphereGeometry(.07,8,8),'#fff',0,y,.6));
+ [-.25,.25].forEach(x=>{P(new T.CylinderGeometry(.2,.22,.5,10),cl('bottom'),x,.5,0);P(new T.SphereGeometry(.28,10,8),'#6b4a35',x,.2,.08).scale.set(1,.7,1.25)});
+ [-1,1].forEach(s=>{P(new T.CylinderGeometry(.16,.15,.8,10),tp,s*.72,1.15,0).rotation.z=s*.35;P(new T.SphereGeometry(.2,10,8),'#fff',s*.88,.75,0);P(new T.SphereGeometry(.14,8,8),sk,s*.7,2.15,0)});
+ P(new T.SphereGeometry(.72,20,16),sk,0,2.2,0);P(new T.SphereGeometry(.76,18,10,0,6.29,0,1.5),hr,0,2.24,-.03);P(new T.SphereGeometry(.62,14,10),hr,0,2.1,-.26).scale.set(1,1,.8);
+ [-1,1].forEach(s=>{P(new T.SphereGeometry(.3,10,8),hr,s*.25,2.78,.45).scale.set(1.3,.6,.7);P(new T.SphereGeometry(.09,8,8),'#222',s*.26,2.17,.65);P(new T.SphereGeometry(.03,6,6),'#fff',s*.23,2.21,.73);P(new T.SphereGeometry(.12,8,8),'#ff9aa8',s*.44,2.0,.58).scale.set(1,.6,.4)});
+ P(new T.TorusGeometry(.1,.025,6,10,Math.PI),'#a0524a',0,2.02,.68).rotation.z=Math.PI;
+ if(a.scarf){const sc=a.scarf==1?'#e0505a':'#6bb8e8';P(new T.TorusGeometry(.56,.17,8,18),sc,0,1.7,0).rotation.x=Math.PI/2;P(new T.BoxGeometry(.26,.75,.12),sc,.32,1.3,.58).rotation.z=.12}
+ if(a.hat==1){P(new T.SphereGeometry(.8,18,10,0,6.29,0,1.3),'#d9464f',0,2.4,0);P(new T.TorusGeometry(.76,.12,8,20),'#fff',0,2.52,0).rotation.x=Math.PI/2;P(new T.SphereGeometry(.2,10,10),'#fff',0,3.22,0)}
+ if(a.hat==2){const hg=new T.Group();hg.position.y=2.55;g.add(hg);const Q=(geo,col,x,y,z)=>{const q=new T.Mesh(geo,m(col));q.position.set(x,y,z);hg.add(q);return q};
+  Q(new T.TorusGeometry(.7,.14,8,20),'#fff',0,.05,0).rotation.x=Math.PI/2;Q(new T.ConeGeometry(.62,1.3,16),'#d93a3a',0,.7,0);Q(new T.SphereGeometry(.17,10,10),'#fff',0,1.4,0);hg.rotation.z=-.15}
+ if(a.glass){[-1,1].forEach(s=>P(new T.TorusGeometry(.17,.03,6,12),'#333',s*.27,2.17,.68));P(new T.BoxGeometry(.2,.03,.03),'#333',0,2.18,.69)}
+ const nm=String(a.name||'').slice(0,8),lb=spr(nm,{w:240,h:64,f:34,bg:'rgba(255,253,245,.85)',fg:'#34506b',d:80});lb.position.y=4.5;g.add(lb);S.add(g);
+ const o={g,tx:0,tz:0,tr:0,bub:null,bt:0,say(t){if(o.bub)g.remove(o.bub);t=clean(t).slice(0,60);o.bub=bubSpr(t);o.bub.position.y=5+o.bub.scale.y/2;g.add(o.bub);clearTimeout(o.bt);o.bt=setTimeout(()=>{g.remove(o.bub);o.bub=null},3500+t.length*90)}};return o}
 let me=mk(A);me.g.position.set(0,0,6);const remotes={};
 function rebuild(){const p=me.g.position.clone(),r=me.g.rotation.y;S.remove(me.g);me=mk(A);me.g.position.copy(p);me.g.rotation.y=r;pdirty=1}
 
@@ -137,7 +154,7 @@ function drawOpts(){const h=$('#opts');h.innerHTML='';
  for(const k in LAB){const r=document.createElement('div');r.className='row';r.innerHTML='<b>'+LAB[k]+'</b>';COL[k].forEach((c,i)=>{const b=document.createElement('button');b.className='sw'+(A[k]==i?' on':'');b.style.background=c;b.onclick=()=>{A[k]=i;rebuild();drawOpts()};r.appendChild(b)});h.appendChild(r)}
  OPT.forEach(([k,l,v])=>{const r=document.createElement('div');r.className='row';r.innerHTML='<b>'+l+'</b>';v.forEach((t,i)=>{const b=document.createElement('button');b.className='op'+(A[k]==i?' on':'');b.textContent=t;b.onclick=()=>{A[k]=i;rebuild();drawOpts()};r.appendChild(b)});h.appendChild(r)})}
 $('#nm').value=A.name;drawOpts();document.body.classList.add('cr');
-$('#go').onclick=()=>{A.name=($('#nm').value.trim()||'학생'+Math.floor(Math.random()*90+10)).slice(0,8);A.name=clean(A.name);try{localStorage.setItem('wc',JSON.stringify(A))}catch(e){}rebuild();creating=false;$('#cc').hidden=true;document.body.classList.remove('cr');applyView();pdirty=1};
+$('#go').onclick=()=>{A.name=($('#nm').value.trim()||'학생'+Math.floor(Math.random()*90+10)).slice(0,8);A.name=clean(A.name);try{localStorage.setItem('wc',JSON.stringify(A))}catch(e){}rebuild();creating=false;bgOn=true;ac();bar();$('#cc').hidden=true;document.body.classList.remove('cr');applyView();pdirty=1};
 $('#mb').onclick=()=>{creating=true;$('#cc').hidden=false;document.body.classList.add('cr');applyView()};
 
 // ---------- input ----------
@@ -150,17 +167,27 @@ function jm(e){const r=jy.getBoundingClientRect(),L=r.width/2;let dx=e.clientX-r
 jy.addEventListener('pointerdown',e=>{jd=1;jy.setPointerCapture(e.pointerId);jm(e)});jy.addEventListener('pointermove',e=>{if(jd)jm(e)});
 ['pointerup','pointercancel'].forEach(n=>jy.addEventListener(n,()=>{jd=0;jv={x:0,y:0};kb.style.transform=''}));
 
+// ---------- audio ----------
+let AC=null,muted=false,bgOn=false,bi=0;
+function ac(){if(!AC){try{AC=new(window.AudioContext||window.webkitAudioContext)()}catch(e){}}if(AC&&AC.state=='suspended')AC.resume();return AC}
+function tone(f,t0,d,type,v){const a=ac();if(!a||muted)return;const o=a.createOscillator(),g=a.createGain(),t=a.currentTime+t0;o.type=type||'sine';o.frequency.value=f;g.gain.setValueAtTime(.0001,t);g.gain.linearRampToValueAtTime(v||.08,t+.03);g.gain.exponentialRampToValueAtTime(.0001,t+d);o.connect(g);g.connect(a.destination);o.start(t);o.stop(t+d+.05)}
+const SFX={pop:()=>{tone(660,0,.1,'triangle');tone(880,.07,.12,'triangle')},throw:()=>{tone(300,0,.15,'sawtooth',.03);tone(180,.05,.15,'sawtooth',.02)},hit:()=>tone(120,0,.2,'square',.06),crash:()=>{tone(90,0,.35,'sawtooth',.08);tone(60,.1,.4,'square',.06)},chime:()=>[784,988,1175].forEach((f,i)=>tone(f,i*.1,.35,'sine',.07))};
+const CH=[[220,261.6,329.6],[174.6,220,261.6],[261.6,329.6,392],[196,246.9,293.7]];
+function bar(){if(muted||!bgOn)return;const c=CH[bi++%4];[0,1,2,1,2,1,0,2].forEach((n,i)=>tone(c[n]*2,i*.4,.9,'sine',.035));tone(c[0]/2,0,3,'triangle',.05);if(Math.random()<.6)tone(c[2]*4,.8+Math.floor(Math.random()*4)*.4,.6,'triangle',.025)}
+setInterval(bar,3200);
+$('#sb').onclick=()=>{muted=!muted;$('#sb').textContent=muted?'🔇':'🔊';if(!muted){ac();bar()}};
+
 // ---------- chat ----------
 let room=null,db=null,lastSend=0;
 function addLog(n,t){const l=$('#log'),d=document.createElement('div');d.textContent=n+': '+t;l.appendChild(d);while(l.children.length>10)l.firstChild.remove()}
 function sendMsg(){const i=$('#msg');let t=i.value.trim();if(!t||creating)return;if(Date.now()-lastSend<1500){toast('조금 천천히 보내주세요 ❄️');return}
- lastSend=Date.now();t=clean(t).slice(0,40);i.value='';me.say(t);addLog(A.name,t);room&&room.emit('chat',{n:A.name,t}).catch(()=>{});i.blur()}
+ lastSend=Date.now();t=clean(t).slice(0,60);i.value='';me.say(t);SFX.pop();addLog(A.name,t);room&&room.emit('chat',{n:A.name,t}).catch(()=>{});i.blur()}
 $('#send').onclick=sendMsg;
 
 // ---------- snowballs ----------
 const balls=[];
 function spawnBall(x,z,dx,dz,own){const m=new T.Mesh(new T.SphereGeometry(.35,10,10),MT(0xffffff));m.position.set(x,1.8,z);S.add(m);balls.push({m,dx,dz,t:0,own})}
-function throwBall(){if(creating||G)return;const r=me.g.rotation.y,dx=Math.sin(r),dz=Math.cos(r),p=me.g.position;spawnBall(p.x+dx,p.z+dz,dx,dz,true);room&&room.emit('ball',{x:p.x+dx,z:p.z+dz,dx,dz}).catch(()=>{})}
+function throwBall(){if(creating||G)return;const r=me.g.rotation.y,dx=Math.sin(r),dz=Math.cos(r),p=me.g.position;spawnBall(p.x+dx,p.z+dz,dx,dz,true);SFX.throw();room&&room.emit('ball',{x:p.x+dx,z:p.z+dz,dx,dz}).catch(()=>{})}
 $('#snow').onclick=throwBall;
 
 // ---------- network ----------
@@ -170,7 +197,7 @@ $('#snow').onclick=throwBall;
   if(!r||r.key!==key){const pos=r?r.g.position.clone():new T.Vector3(+d.x||0,0,+d.z||0);if(r)S.remove(r.g);r=remotes[p.peer]=mk(a);r.key=key;r.g.position.copy(pos)}
   r.tx=+d.x||0;r.tz=+d.z||0;r.tr=+d.r||0});
   for(const k in remotes)if(!ids.has(k)){S.remove(remotes[k].g);delete remotes[k]}$('#cnt').textContent='👥 '+(ids.size+1);pdirty=1});
- room.on('chat',m=>{if(m.sameTab)return;const t=clean(String((m.data||{}).t||'')).slice(0,40);if(!t)return;const r=remotes[m.peer];r&&r.say(t);addLog(String((m.data||{}).n||'익명').slice(0,8),t)});
+ room.on('chat',m=>{if(m.sameTab)return;const t=clean(String((m.data||{}).t||'')).slice(0,60);if(!t)return;SFX.pop();const r=remotes[m.peer];r&&r.say(t);addLog(String((m.data||{}).n||'익명').slice(0,8),t)});
  room.on('ball',m=>{if(m.sameTab)return;const d=m.data||{};if([d.x,d.z,d.dx,d.dz].every(Number.isFinite))spawnBall(d.x,d.z,d.dx,d.dz,false)});
 })();
 
@@ -183,7 +210,7 @@ function renderWishes(list){wishes=list;cards.forEach(c=>S.remove(c));cards=[];c
  if(!db){$('#wn').textContent='공유 링크로 접속하면 모두의 소원이 함께 보여요.';return}
  try{db.collection('wishes').orderBy('ts','desc').limit(24).onSnapshot(s=>renderWishes((s.docs||[]).map(d=>d.data?d.data():d)),()=>{})}catch(e){}})();
 $('#wb').onclick=async()=>{const i=$('#wt'),t=clean(i.value.trim()).slice(0,60);if(!t)return;
- if(db){try{await db.collection('wishes').add({t,ts:Date.now()})}catch(e){toast('소원을 저장하지 못했어요');return}}else renderWishes([{t},...wishes]);i.value='';toast('소원이 나무에 걸렸어요 🌠')};
+ if(db){try{await db.collection('wishes').add({t,ts:Date.now()})}catch(e){toast('소원을 저장하지 못했어요');return}}else renderWishes([{t},...wishes]);i.value='';SFX.chime();toast('소원이 나무에 걸렸어요 🌠')};
 $('#wc').onclick=()=>$('#ww').hidden=true;
 
 // ---------- guestbook ----------
@@ -198,7 +225,7 @@ $('#gs').onclick=async()=>{const i=$('#gt'),t=clean(i.value.trim()).slice(0,80);
  try{localStorage.setItem(gbKey,JSON.stringify([e,...gbLocal()].slice(0,40)))}catch(x){}
  renderGb(gbMerge(gb));let ok=false;
  if(db){try{await db.collection('guestbook').add(e);ok=true}catch(x){}}
- $('#gn').textContent=ok?'☁️ 서버에 저장됐어요':'📱 이 기기에 저장됐어요 (서버 연결 안 됨)';i.value='';toast(ok?'방명록에 남겼어요 📖':'이 기기에만 저장됐어요 📱')};
+ $('#gn').textContent=ok?'☁️ 서버에 저장됐어요':'📱 이 기기에 저장됐어요 (서버 연결 안 됨)';i.value='';SFX.chime();toast(ok?'방명록에 남겼어요 📖':'이 기기에만 저장됐어요 📱')};
 $('#gbb').onclick=()=>$('#gb').hidden=false;$('#gc').onclick=()=>$('#gb').hidden=true;
 
 // ---------- sled minigame ----------
@@ -208,7 +235,7 @@ function sledStep(dt){if(!G)return;const g=G;
  if(!g.over){const dir=(K.arrowleft||K.a?-1:0)+(K.arrowright||K.d?1:0)||sk;g.x=Math.max(30,Math.min(330,g.x+dir*260*dt));g.d+=g.sp*dt/20;g.sp=Math.min(520,g.sp+8*dt);g.t-=dt;
   if(g.t<=0){g.o.push({x:30+Math.random()*300,y:-30,e:['⛄','🌲','🪨'][Math.floor(Math.random()*3)]});g.t=Math.max(.35,.9-g.d/400)}
   g.o.forEach(o=>o.y+=g.sp*dt);g.o=g.o.filter(o=>o.y<540);
-  if(g.o.some(o=>Math.abs(o.x-g.x)<26&&Math.abs(o.y-430)<30)){g.over=1;if(g.d>best){best=Math.floor(g.d);try{localStorage.setItem('sb',best)}catch(e){}}}}
+  if(g.o.some(o=>Math.abs(o.x-g.x)<26&&Math.abs(o.y-430)<30)){g.over=1;SFX.crash();if(g.d>best){best=Math.floor(g.d);try{localStorage.setItem('sb',best)}catch(e){}}}}
  sx.fillStyle='#f4f9ff';sx.fillRect(0,0,360,500);sx.fillStyle='#dcebf8';for(let i=0;i<8;i++)sx.fillRect(0,((g.d*20+i*70)%500),360,3);
  sx.font='34px serif';sx.textAlign='center';g.o.forEach(o=>sx.fillText(o.e,o.x,o.y+12));sx.fillText('🛷',g.x,445);
  sx.fillStyle='#34506b';sx.font='bold 18px sans-serif';sx.textAlign='left';sx.fillText(Math.floor(g.d)+'m  (최고 '+best+'m)',10,26);
@@ -233,7 +260,7 @@ function tick(t){requestAnimationFrame(tick);const dt=Math.min((t-last)/1000,.05
  if(creating)face+=dt*.9;let d=face-me.g.rotation.y;d=Math.atan2(Math.sin(d),Math.cos(d));me.g.rotation.y+=d*Math.min(1,dt*12);
  for(const k in remotes){const r=remotes[k],q=r.g.position;const mv=Math.hypot(r.tx-q.x,r.tz-q.z);q.x+=(r.tx-q.x)*Math.min(1,dt*8);q.z+=(r.tz-q.z)*Math.min(1,dt*8);q.y=mv>.3?Math.abs(Math.sin(t*.012))*.18:0;let e=r.tr-r.g.rotation.y;e=Math.atan2(Math.sin(e),Math.cos(e));r.g.rotation.y+=e*Math.min(1,dt*10)}
  for(let i=balls.length-1;i>=0;i--){const b=balls[i];b.t+=dt;b.m.position.x+=b.dx*18*dt;b.m.position.z+=b.dz*18*dt;b.m.position.y=1.8-b.t*.4;
-  if(!b.own&&Math.hypot(b.m.position.x-p.x,b.m.position.z-p.z)<1.1){me.say('앗 차가워!');p.x+=b.dx*2;p.z+=b.dz*2;b.t=9}
+  if(!b.own&&Math.hypot(b.m.position.x-p.x,b.m.position.z-p.z)<1.1){me.say('앗 차가워!');SFX.hit();p.x+=b.dx*2;p.z+=b.dz*2;b.t=9}
   if(b.t>1.6){S.remove(b.m);balls.splice(i,1)}}
  const pa=snowP.geometry.attributes.position;for(let i=0;i<N;i++){let y=pa.array[i*3+1]-dt*(2+i%5*.3);if(y<0)y+=30;pa.array[i*3+1]=y;pa.array[i*3]+=Math.sin(t*.001+i)*dt*.4}pa.needsUpdate=true;snowP.position.set(p.x,0,p.z);
  cz=Z.find(z=>Math.hypot(p.x-z.x,p.z-z.z)<z.r)||{n:'캠퍼스 산책로',k:'walk'};$('#loc').textContent='📍 '+cz.n;const ab=$('#act');ab.hidden=!AL[cz.k];if(AL[cz.k])ab.textContent=AL[cz.k];
