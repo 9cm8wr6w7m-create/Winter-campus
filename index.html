@@ -75,11 +75,11 @@ export function getRoom(){return roomP||(roomP=(async()=>{const d=await init();i
 
 
 const T=THREE,$=s=>document.querySelector(s);
-const COL={skin:['#ffe0c7','#f3c9a0','#d9a273','#a8734a'],hair:['#3b2a20','#8a5a2b','#e8c26a','#e57a9a','#6aa7e8','#f4f4f4'],top:['#e85a5a','#4a90d9','#5fb36b','#f2b84b','#9b6bd1','#f58fb0'],bottom:['#33455c','#6b4a35','#4d4d57','#2f6b5a']};
-const OPT=[['hat','모자',['없음','털모자','산타']],['scarf','목도리',['없음','빨강','하늘']],['glass','안경',['없음','있음']]];
-const LAB={skin:'피부',hair:'머리·털색',top:'상의',bottom:'하의'};
-const OPT0=[['kind','종류',['사람','고양이','강아지','토끼','곰']],['sex','성별',['여자','남자']]];
-let A={name:'',kind:0,sex:0,skin:0,hair:0,top:0,bottom:0,hat:1,scarf:1,glass:0};
+const COL={skin:['#ffe0c7','#f3c9a0','#d9a273','#a8734a'],hair:['#3b2a20','#8a5a2b','#e8c26a','#e57a9a','#6aa7e8','#f4f4f4'],top:['#ffffff','#e85a5a','#4a90d9','#5fb36b','#f2b84b','#9b6bd1','#f58fb0'],bottom:['#33455c','#6b4a35','#4d4d57','#2f6b5a','#c9b79c'],shoe:['#6b4a35','#222831','#ffffff','#d9464f','#4a90d9','#f2b84b']};
+const OPT=[['hat','모자',['없음','털모자','볼캡']],['scarf','목도리',['없음','빨강','하늘']],['glass','안경',['없음','있음']]];
+const LAB={skin:'피부',hair:'머리·털색',top:'티',bottom:'바지',shoe:'신발'};
+const OPT0=[['kind','종류',['사람','고양이','강아지','토끼','곰']]];
+let A={name:'',kind:0,skin:0,hair:0,top:0,bottom:0,shoe:0,hat:1,scarf:1,glass:0};
 try{Object.assign(A,JSON.parse(localStorage.getItem('wc')||'{}'))}catch(e){}
 const BAD=/시발|씨발|병신|ㅅㅂ|ㅂㅅ|개새|좆|fuck|shit/gi,clean=s=>String(s).replace(BAD,'***');
 function toast(t){const e=$('#toast');e.textContent=t;e.style.opacity=1;clearTimeout(toast.t);toast.t=setTimeout(()=>e.style.opacity=0,2200)}
@@ -88,7 +88,7 @@ function toast(t){const e=$('#toast');e.textContent=t;e.style.opacity=1;clearTim
 const R=new T.WebGLRenderer({canvas:$('#w'),antialias:true});R.setPixelRatio(Math.min(devicePixelRatio,2));
 const S=new T.Scene();S.background=new T.Color(0xcfe3f5);S.fog=new T.Fog(0xcfe3f5,45,120);
 const C=new T.PerspectiveCamera(55,1,.1,200);
-S.add(new T.HemisphereLight(0xfff3d6,0xaec8e6,.95));const sun=new T.DirectionalLight(0xffe2a8,.7);sun.position.set(-20,30,10);S.add(sun);
+const hemi=new T.HemisphereLight(0xfff3d6,0xaec8e6,.95);S.add(hemi);const sun=new T.DirectionalLight(0xffe2a8,.7);sun.position.set(-20,30,10);S.add(sun);
 const MT=(c,e)=>new T.MeshStandardMaterial({color:c,roughness:.9,emissive:e||0});
 const add=(g,m,x,y,z)=>{const q=new T.Mesh(g,m);q.position.set(x,y,z);S.add(q);return q};
 add(new T.PlaneGeometry(170,170).rotateX(-Math.PI/2),MT(0xfaf7ee),0,0,0);
@@ -96,11 +96,12 @@ add(new T.CylinderGeometry(13,13,.1,40),MT(0xe8f0f7),0,.05,0);
 add(new T.CylinderGeometry(11,11,.1,40),MT(0x9fd6f2),28,.06,22);
 add(new T.CylinderGeometry(9,9,.1,30),MT(0xf1e3c4),-28,.05,24);
 const slope=add(new T.BoxGeometry(12,.4,26),MT(0xffffff),30,1.6,-26);slope.rotation.x=.12;
+const WIN=MT(0xffd36b,0xffc040),LAMP=MT(0xfff0b0,0xffe080),PL=[];
 function bld(x,z,w,h,d,c){add(new T.BoxGeometry(w,h,d),MT(c),x,h/2,z);const R=Math.max(w,d)*.78;add(new T.ConeGeometry(R,3,4),MT(0x9a6a58),x,h+1.5,z).rotation.y=Math.PI/4;add(new T.ConeGeometry(R*.79,2.37,4),MT(0xffffff),x,h+3.12-1.185,z).rotation.y=Math.PI/4;
  add(new T.BoxGeometry(.8,2,.8),MT(0x8a5a48),x+w*.25,h+2.2,z);add(new T.BoxGeometry(1,.22,1),MT(0xffffff),x+w*.25,h+3.25,z);
  add(new T.BoxGeometry(1.3,2.2,.15),MT(0x7a5a40),x,1.1,z+d/2+.08);add(new T.SphereGeometry(.07,6,6),MT(0xffd36b,0xffc040),x+.4,1.1,z+d/2+.2);
- for(let i=0;i<3;i++){const wx=x-w/3+i*w/3,wy=h*.6;add(new T.BoxGeometry(1.7,1.9,.08),MT(0xffffff),wx,wy,z+d/2+.03);add(new T.PlaneGeometry(1.4,1.6),MT(0xffd36b,0xffc040),wx,wy,z+d/2+.09)}
- const l=new T.PointLight(0xffc060,.6,18);l.position.set(x,3,z+d/2+2);S.add(l)}
+ for(let i=0;i<3;i++){const wx=x-w/3+i*w/3,wy=h*.6;add(new T.BoxGeometry(1.7,1.9,.08),MT(0xffffff),wx,wy,z+d/2+.03);add(new T.PlaneGeometry(1.4,1.6),WIN,wx,wy,z+d/2+.09)}
+ const l=new T.PointLight(0xffc060,.6,18);l.position.set(x,3,z+d/2+2);S.add(l);PL.push(l)}
 bld(-30,-32,14,8,9,0xf3e3c8);bld(-14,-48,9,6,7,0xe6d6c0);bld(16,-46,9,6,7,0xdde8f2);bld(-50,0,9,7,12,0xf0dcc0);bld(50,-5,9,7,12,0xe3ecf5);
 const LC=[0xff5a5a,0xffd24a,0x5ad2ff,0x7bff7b];
 function pine(x,z,s,lights){const g=new T.Group();g.position.set(x,0,z);g.scale.setScalar(s);S.add(g);
@@ -115,14 +116,22 @@ function snowman(x,z){const g=new T.Group();g.position.set(x,0,z);S.add(g);const
 let sd=7;const rnd=()=>(sd=(sd*9301+49297)%233280)/233280;
 pine(0,-36,2.2,true);for(let i=0;i<34;i++){const x=(rnd()-.5)*140,z=(rnd()-.5)*140;if(Math.hypot(x,z)>16&&Math.abs(x-28)+Math.abs(z-22)>16)pine(x,z,.8+rnd()*.7,i%3==0)}
 [[6,6],[-7,5],[-20,-8],[34,8],[22,-8],[-32,30],[8,-22],[-8,-24]].forEach(p=>snowman(p[0],p[1]));
-add(new T.CylinderGeometry(.15,.15,3.5,8),MT(0x555a66),4,1.75,-4);add(new T.SphereGeometry(.5,10,10),MT(0xfff0b0,0xffe080),4,3.7,-4);
+add(new T.CylinderGeometry(.15,.15,3.5,8),MT(0x555a66),4,1.75,-4);add(new T.SphereGeometry(.5,10,10),LAMP,4,3.7,-4);
 function bench(x,z,r){const g=new T.Group();g.position.set(x,0,z);g.rotation.y=r;S.add(g);const w=(geo,c,px,py,pz)=>{const q=new T.Mesh(geo,MT(c));q.position.set(px,py,pz);g.add(q)};w(new T.BoxGeometry(2.6,.2,.8),0x8a5a40,0,.9,0);w(new T.BoxGeometry(2.6,.7,.12),0x8a5a40,0,1.4,-.36);w(new T.BoxGeometry(2.7,.1,.9),0xffffff,0,1.04,0);[-1.1,1.1].forEach(s=>w(new T.BoxGeometry(.15,.9,.7),0x4a4a52,s,.45,0))}
 [[-9,8,.3],[9,-8,-.4],[-8,-10,Math.PI],[26,10,0],[-22,16,.5],[-36,-16,0]].forEach(b=>bench(b[0],b[1],b[2]));
-for(let i=0;i<8;i++){const an=i/8*6.283,lx=Math.cos(an)*15,lz=Math.sin(an)*15;add(new T.CylinderGeometry(.1,.12,3.2,8),MT(0x555a66),lx,1.6,lz);add(new T.SphereGeometry(.4,10,10),MT(0xfff0b0,0xffe080),lx,3.4,lz)}
+for(let i=0;i<8;i++){const an=i/8*6.283,lx=Math.cos(an)*15,lz=Math.sin(an)*15;add(new T.CylinderGeometry(.1,.12,3.2,8),MT(0x555a66),lx,1.6,lz);add(new T.SphereGeometry(.4,10,10),LAMP,lx,3.4,lz)}
 
 const N=1100,sp=new Float32Array(N*3);for(let i=0;i<N;i++){sp[i*3]=(Math.random()-.5)*80;sp[i*3+1]=Math.random()*30;sp[i*3+2]=(Math.random()-.5)*80}
 const sg=new T.BufferGeometry();sg.setAttribute('position',new T.BufferAttribute(sp,3));const snowP=new T.Points(sg,new T.PointsMaterial({color:0xffffff,size:.4,transparent:true,opacity:.9}));snowP.frustumCulled=false;S.add(snowP);
 const Z=[{n:'소원의 나무',x:0,z:-36,r:8,k:'wish'},{n:'학생회관',x:-30,z:-24,r:13,k:'hall'},{n:'눈썰매장',x:30,z:-26,r:12,k:'sled'},{n:'얼음 광장',x:28,z:22,r:13,k:'ice'},{n:'캠퍼스 산책로',x:-28,z:24,r:13,k:'walk'},{n:'중앙 광장',x:0,z:0,r:14,k:'plaza'}];
+
+// ---------- day/night ----------
+const DS={day:{sky:0xa8d8f8,hs:0xfff3d6,hg:0xaec8e6,hi:.95,dc:0xffe2a8,di:.7,w:.2,l:.3,p:.05},sun:{sky:0xf2956a,hs:0xffc9a0,hg:0xb08aa8,hi:.8,dc:0xff9a5a,di:.75,w:1,l:.9,p:.5},night:{sky:0x16264a,hs:0x7088c8,hg:0x1c2c52,hi:.5,dc:0x7088c8,di:.3,w:1.4,l:1.4,p:.9}};
+const KF=[[0,'day'],[9.5,'day'],[10.5,'sun'],[14.5,'sun'],[15.5,'night'],[24,'night'],[25,'day']],FT=(location.hash.match(/t=([\d.]+)/)||[])[1],c1=new T.Color(),c2=new T.Color();let envT=-1e9,ico='☀️';
+function mixC(o,x,y,k){return o.setHex(x).lerp(c2.setHex(y),k)}
+function applyEnv(){const mn=FT!==undefined?+FT%25:(Date.now()/60000)%25;let i=0;while(i<KF.length-2&&mn>=KF[i+1][0])i++;const a=DS[KF[i][1]],b=DS[KF[i+1][1]],k=Math.max(0,Math.min(1,(mn-KF[i][0])/(KF[i+1][0]-KF[i][0]))),L=(x,y)=>x+(y-x)*k;
+ mixC(c1,a.sky,b.sky,k);S.background.copy(c1);S.fog.color.copy(c1);mixC(hemi.color,a.hs,b.hs,k);mixC(hemi.groundColor,a.hg,b.hg,k);mixC(sun.color,a.dc,b.dc,k);
+ hemi.intensity=L(a.hi,b.hi);sun.intensity=L(a.di,b.di);WIN.emissiveIntensity=L(a.w,b.w);LAMP.emissiveIntensity=L(a.l,b.l);PL.forEach(l=>{l.intensity=L(a.p,b.p)});ico=mn<10?'☀️':mn<15?'🌇':'🌙'}
 
 // ---------- avatars ----------
 function spr(t,o){const c=document.createElement('canvas');c.width=o.w;c.height=o.h;const x=c.getContext('2d');x.fillStyle=o.bg;x.beginPath();x.roundRect(4,4,o.w-8,o.h-8,o.h/3);x.fill();x.fillStyle=o.fg;x.font='bold '+o.f+'px sans-serif';x.textAlign='center';x.textBaseline='middle';x.fillText(t,o.w/2,o.h/2);
@@ -130,35 +139,32 @@ function spr(t,o){const c=document.createElement('canvas');c.width=o.w;c.height=
 function bubSpr(t){const L=[];for(let i=0;i<t.length&&L.length<5;i+=12)L.push(t.slice(i,i+12));const w=Math.max(L.reduce((m,s)=>Math.max(m,s.length),0)*38+60,120),h=L.length*46+34,c=document.createElement('canvas');c.width=w;c.height=h;const x=c.getContext('2d');x.fillStyle='#fff';x.strokeStyle='#cfe0ee';x.lineWidth=4;x.beginPath();x.roundRect(4,4,w-8,h-8,24);x.fill();x.stroke();x.fillStyle='#34506b';x.font='bold 34px sans-serif';x.textAlign='center';x.textBaseline='middle';L.forEach((s,i)=>x.fillText(s,w/2,40+i*46));
  const sp=new T.Sprite(new T.SpriteMaterial({map:new T.CanvasTexture(c),depthTest:false,transparent:true}));sp.scale.set(w/100,h/100,1);sp.renderOrder=9;return sp}
 Z.forEach(z=>{const px=z.x+z.r*.5,pz=z.z+z.r*.5;add(new T.CylinderGeometry(.1,.1,5,6),MT(0x7a5a40),px,2.5,pz);const s=spr(z.n,{w:300,h:80,f:36,bg:'#fff6c9',fg:'#5a4a2a',d:90});s.position.set(px,5.6,pz);S.add(s)});
-function mk(a){const g=new T.Group(),cl=k=>(COL[k]||COL.skin)[a[k]]||COL[k][0],m=x=>new T.MeshStandardMaterial({color:x,roughness:.85});
- const P=(geo,col,x,y,z)=>{const q=new T.Mesh(geo,m(col));q.position.set(x,y,z);g.add(q);return q};
- const kd=Math.max(0,Math.min(4,+a.kind||0)),fem=!+a.sex,fur=kd>0,H=2.75,hr=cl('hair'),sk=fur?hr:cl('skin'),tp=cl('top'),bt=cl('bottom'),dk=new T.Color(hr).multiplyScalar(.78).getStyle(),S2=(q,x,y,z)=>{q.scale.set(x,y,z);return q};
- const rib=(x,y,z,c)=>{P(new T.SphereGeometry(.09,8,8),c,x,y,z);[-1,1].forEach(s=>{P(new T.ConeGeometry(.15,.3,8),c,x+s*.18,y,z).rotation.z=s*Math.PI/2})};
- P(new T.CylinderGeometry(.5,.6,1,16),tp,0,1.35,0);P(new T.CylinderGeometry(.22,.22,.3,10),sk,0,1.95,0);
- if(!fem&&!fur)[1.6,1.35].forEach(y=>P(new T.SphereGeometry(.07,8,8),'#fff',0,y,.56));
- if(fem&&!fur)P(new T.CylinderGeometry(.58,.88,.5,18),bt,0,.98,0);
- [-.25,.25].forEach(x=>{P(new T.CylinderGeometry(.19,.21,.85,10),fur?hr:(fem?sk:bt),x,.52,0);S2(P(new T.SphereGeometry(.27,10,8),'#6b4a35',x,.2,.08),1,.7,1.3)});
- [-1,1].forEach(s=>{P(new T.CylinderGeometry(.15,.14,.85,10),tp,s*.62,1.37,0).rotation.z=s*.3;P(new T.SphereGeometry(.17,10,8),tp,s*.5,1.72,0);P(new T.SphereGeometry(.19,10,8),fur?hr:'#fff',s*.74,.97,0)});
- P(new T.SphereGeometry(.72,20,16),sk,0,H,0);
- [-1,1].forEach(s=>{P(new T.SphereGeometry(.09,8,8),'#222',s*.26,H-.03,.65);P(new T.SphereGeometry(.03,6,6),'#fff',s*.23,H+.01,.73);S2(P(new T.SphereGeometry(.12,8,8),'#ff9aa8',s*.44,H-.18,.58),1,.6,.4)});
- if(!fur){P(new T.TorusGeometry(.1,.025,6,10,Math.PI),'#a0524a',0,H-.18,.68).rotation.z=Math.PI;[-1,1].forEach(s=>P(new T.SphereGeometry(.14,8,8),sk,s*.7,H-.05,0));
-  if(fem){S2(P(new T.SphereGeometry(.74,16,12),hr,0,H-.5,-.28),1,1.45,.78);[-1,1].forEach(s=>S2(P(new T.SphereGeometry(.2,10,8),hr,s*.62,H-.5,.05),.8,2.2,.9))}
-  else{S2(P(new T.SphereGeometry(.66,14,10),hr,0,H-.08,-.3),1,1,.85);[-1,1].forEach(s=>S2(P(new T.SphereGeometry(.15,8,8),hr,s*.66,H-.15,.1),.8,1.6,.8))}
-  if(!a.hat){P(new T.SphereGeometry(.78,20,12,0,6.29,0,1.5),hr,0,H+.05,-.02);[-.9,-.45,0,.45,.9].forEach(t=>S2(P(new T.SphereGeometry(.27,10,8),hr,Math.sin(t)*.6,H+.42-Math.abs(t)*.12,Math.cos(t)*.5+.02),1,1.05,.7));
-   if(!fem)for(let i=0;i<5;i++)P(new T.ConeGeometry(.2,.5,6),hr,(i-2)*.28,H+.85-Math.abs(i-2)*.08,-.05).rotation.z=(i-2)*-.25}}
- else{S2(P(new T.SphereGeometry(.3,12,10),'#fff4e6',0,H-.2,.5),1.2,.8,.9);P(new T.SphereGeometry(.07,8,8),kd==3?'#ff8fa3':'#333',0,H-.12,.78);
-  if(kd==1){[-1,1].forEach(s=>{P(new T.ConeGeometry(.25,.5,4),hr,s*.42,H+.68,0).rotation.z=-s*.35;P(new T.ConeGeometry(.14,.3,4),'#ff9aa8',s*.42,H+.65,.08).rotation.z=-s*.35;[-.08,.08].forEach(d=>P(new T.CylinderGeometry(.012,.012,.5,4),'#555',s*.6,H-.17+d*2,.62).rotation.z=Math.PI/2+s*d*2)});P(new T.CylinderGeometry(.08,.1,.9,8),hr,0,1.3,-.8).rotation.x=-.9}
-  if(kd==2){[-1,1].forEach(s=>{S2(P(new T.SphereGeometry(.26,10,8),dk,s*.72,H-.05,-.02),.55,1.5,.8).rotation.z=-s*.2});P(new T.CylinderGeometry(.07,.09,.6,8),hr,0,1.1,-.75).rotation.x=-.5}
-  if(kd==3){[-1,1].forEach(s=>{const e=S2(P(new T.SphereGeometry(.17,10,8),hr,s*.3,H+1,0),1,3.1,.6);e.rotation.z=-s*.12;const i=S2(P(new T.SphereGeometry(.1,8,8),'#ffb3c1',s*.3,H+1,.07),.9,2.8,.5);i.rotation.z=-s*.12});P(new T.SphereGeometry(.22,10,10),'#fff',0,1,-.6)}
-  if(kd==4){[-1,1].forEach(s=>{P(new T.SphereGeometry(.27,10,8),hr,s*.52,H+.55,0);P(new T.SphereGeometry(.15,8,8),'#f2d6c4',s*.52,H+.55,.1)});P(new T.SphereGeometry(.2,10,10),hr,0,1,-.62)}}
- if(fem)rib(.5,H+.5,.3,'#ff6fa0');else if(fur)rib(0,1.9,.58,'#d9464f');
- if(a.scarf){const sc=a.scarf==1?'#e0505a':'#6bb8e8';P(new T.TorusGeometry(.55,.17,8,18),sc,0,1.9,0).rotation.x=Math.PI/2;P(new T.BoxGeometry(.26,.75,.12),sc,.32,1.5,.52).rotation.z=.12}
- if(a.hat==1){P(new T.SphereGeometry(.82,18,10,0,6.29,0,1.35),'#d9464f',0,H+.15,0);P(new T.TorusGeometry(.8,.12,8,20),'#fff',0,H+.33,0).rotation.x=Math.PI/2;P(new T.SphereGeometry(.2,10,10),'#fff',0,H+1.07,0)}
- if(a.hat==2){const hg=new T.Group();hg.position.y=H+.35;g.add(hg);const Q=(geo,col,x,y,z)=>{const q=new T.Mesh(geo,m(col));q.position.set(x,y,z);hg.add(q);return q};
-  Q(new T.TorusGeometry(.7,.14,8,20),'#fff',0,.05,0).rotation.x=Math.PI/2;Q(new T.ConeGeometry(.62,1.3,16),'#d93a3a',0,.7,0);Q(new T.SphereGeometry(.17,10,10),'#fff',0,1.4,0);hg.rotation.z=-.15}
- if(a.glass){[-1,1].forEach(s=>P(new T.TorusGeometry(.17,.03,6,12),'#333',s*.27,H-.03,.68));P(new T.BoxGeometry(.2,.03,.03),'#333',0,H-.02,.69)}
- const nm=String(a.name||'').slice(0,8),lb=spr(nm,{w:240,h:64,f:34,bg:'rgba(255,253,245,.85)',fg:'#34506b',d:80});lb.position.y=5;g.add(lb);S.add(g);
- const o={g,tx:0,tz:0,tr:0,bub:null,bt:0,say(t){if(o.bub)g.remove(o.bub);t=clean(t).slice(0,60);o.bub=bubSpr(t);o.bub.position.y=5.5+o.bub.scale.y/2;g.add(o.bub);clearTimeout(o.bt);o.bt=setTimeout(()=>{g.remove(o.bub);o.bub=null},3500+t.length*90)}};return o}
+function mk(a){const g=new T.Group(),cl=k=>(COL[k]||COL.skin)[a[k]]||COL[k][0],m=(x,r)=>new T.MeshStandardMaterial({color:x,roughness:r||.6,side:T.DoubleSide});
+ const P=(geo,col,x,y,z,r)=>{const q=new T.Mesh(geo,m(col,r));q.position.set(x,y,z);g.add(q);return q};
+ const Sc=(q,x,y,z)=>{q.scale.set(x,y,z);return q};
+ const kd=Math.max(0,Math.min(4,+a.kind||0)),fur=kd>0,R=fur?.95:.8,H=fur?2.8:2.9,PI=Math.PI,hr=cl('hair'),sk=fur?hr:cl('skin'),tp=cl('top'),bt=cl('bottom'),sh=cl('shoe'),dk=new T.Color(hr).multiplyScalar(.78).getStyle();
+ const top=(a.hat||kd==3)?H+1.8*R:H+1.15*R,eX=(fur?.38:.34)*R,eY=fur?H+.05*R:H-.02;
+ if(fur){Sc(P(new T.SphereGeometry(.85,28,20),tp,0,1.4,0,.8),1,1.05,.92);
+  [-1,1].forEach(s=>{P(new T.CylinderGeometry(.22,.25,.6,14),hr,s*.36,.4,0,.5);Sc(P(new T.SphereGeometry(.3,14,10),sh,s*.36,.2,.1),1,.65,1.3);
+   P(new T.CylinderGeometry(.2,.18,.6,12),hr,s*.744,1.69,0,.5).rotation.z=s*.5;P(new T.SphereGeometry(.24,14,12),hr,s*.888,1.42,0,.5)})}
+ else{P(new T.CylinderGeometry(.52,.64,1.3,24),tp,0,1.65,0,.8);P(new T.CylinderGeometry(.6,.6,.3,24),bt,0,1,0,.8);
+  [-.27,.27].forEach(x=>{P(new T.CylinderGeometry(.21,.2,.95,16),bt,x,.5,0,.8);Sc(P(new T.SphereGeometry(.28,16,12),sh,x,.19,.1),1,.68,1.4)});
+  [-1,1].forEach(s=>{P(new T.CylinderGeometry(.16,.15,.95,14),tp,s*.651,1.744,0,.8).rotation.z=s*.28;P(new T.SphereGeometry(.18,14,12),tp,s*.52,2.17,0,.8);P(new T.SphereGeometry(.17,14,12),sk,s*.783,1.28,0,.5)})}
+ P(new T.SphereGeometry(R,32,24),sk,0,H,0,.5);
+ [-1,1].forEach(s=>{P(new T.SphereGeometry(.12*R,12,12),'#222',s*eX,eY,.87*R,.3);P(new T.SphereGeometry(.04*R,8,8),'#fff',s*eX-.03,eY+.04,.97*R);Sc(P(new T.SphereGeometry(.14*R,10,10),'#ff9aa8',s*.56*R,H-.2*R,.8*R),1,.6,.4)});
+ if(!fur){P(new T.TorusGeometry(.1*R,.025,6,12,PI),'#a0524a',0,H-.3*R,.955*R).rotation.z=PI;P(new T.SphereGeometry(1.08*R,32,20,0,PI*2,0,1.75),hr,0,H+.02,-.05,.45).rotation.x=-.5}
+ else{Sc(P(new T.SphereGeometry(.34*R,16,12),'#fff4e6',0,H-.26*R,.6*R),1.2,.85,.9);P(new T.SphereGeometry(.09*R,12,12),kd==3?'#ff8fa3':'#333',0,H-.12*R,.93*R,.3);
+  [-1,1].forEach(s=>P(new T.TorusGeometry(.06*R,.02,6,10,PI),'#7a4a3a',s*.07*R,H-.3*R,.91*R).rotation.z=PI);
+  if(kd==1){[-1,1].forEach(s=>{P(new T.ConeGeometry(.3*R,.6*R,8),hr,s*.55*R,H+.8*R,0).rotation.z=-s*.3;P(new T.ConeGeometry(.17*R,.36*R,8),'#ff9aa8',s*.55*R,H+.77*R,.1*R).rotation.z=-s*.3});P(new T.CylinderGeometry(.09,.11,1,10),hr,0,1.6,-.95).rotation.x=-.8}
+  if(kd==2){[-1,1].forEach(s=>{Sc(P(new T.SphereGeometry(.34*R,14,12),dk,s*.95*R,H+.02*R,0),.5,1.35,.8).rotation.z=-s*.2});P(new T.CylinderGeometry(.08,.1,.7,10),hr,0,1.5,-.9).rotation.x=-.5}
+  if(kd==3){[-1,1].forEach(s=>{const e=Sc(P(new T.SphereGeometry(.2*R,14,12),hr,s*.34*R,H+1.1*R,0),1,3.2,.6);e.rotation.z=-s*.12;const i=Sc(P(new T.SphereGeometry(.12*R,12,10),'#ffb3c1',s*.34*R,H+1.1*R,.06*R),.9,2.9,.5);i.rotation.z=-s*.12});P(new T.SphereGeometry(.24,14,12),'#fff',0,1.2,-.85)}
+  if(kd==4){[-1,1].forEach(s=>{P(new T.SphereGeometry(.31*R,14,12),hr,s*.7*R,H+.72*R,0);P(new T.SphereGeometry(.18*R,12,10),'#f2d6c4',s*.7*R,H+.72*R,.12*R)});P(new T.SphereGeometry(.22,14,12),hr,0,1.1,-.85)}}
+ if(a.scarf){const sc=a.scarf==1?'#e0505a':'#6bb8e8';P(new T.TorusGeometry(fur?.68:.58,fur?.2:.18,10,28),sc,0,fur?2.02:2.25,0).rotation.x=PI/2;P(new T.BoxGeometry(.28,.8,.13),sc,fur?.4:.34,fur?1.62:1.86,fur?.78:.58).rotation.z=.1}
+ if(a.hat==1){P(new T.SphereGeometry(1.2*R,28,14,0,PI*2,0,1.35),'#d9464f',0,H+.2*R,0);P(new T.TorusGeometry(1.17*R,.15*R,10,32),'#fff',0,H+.46*R,0).rotation.x=PI/2;P(new T.SphereGeometry(.26*R,14,14),'#fff',0,H+1.5*R,0)}
+ if(a.hat==2){P(new T.SphereGeometry(1.18*R,28,14,0,PI*2,0,1.5),'#2f4f7f',0,H+.15*R,0);Sc(P(new T.CylinderGeometry(1.15*R,1.15*R,.07*R,32,1,false,-PI/2,PI),'#2f4f7f',0,H+.24*R,0),1,1,1.35).rotation.x=.12;P(new T.SphereGeometry(.1*R,10,10),'#2f4f7f',0,H+1.33*R,0)}
+ if(a.glass){[-1,1].forEach(s=>P(new T.TorusGeometry(.19*R,.03,8,16),'#333',s*eX,eY,1.02*R));P(new T.BoxGeometry(.16*R,.03,.03),'#333',0,eY,1.02*R)}
+ const nm=String(a.name||'').slice(0,8),lb=spr(nm,{w:240,h:64,f:34,bg:'rgba(255,253,245,.85)',fg:'#34506b',d:80});lb.position.y=top+.35;g.add(lb);S.add(g);
+ const o={g,tx:0,tz:0,tr:0,bub:null,bt:0,say(t){if(o.bub)g.remove(o.bub);t=clean(t).slice(0,60);o.bub=bubSpr(t);o.bub.position.y=top+.9+o.bub.scale.y/2;g.add(o.bub);clearTimeout(o.bt);o.bt=setTimeout(()=>{g.remove(o.bub);o.bub=null},3500+t.length*90)}};return o}
 let me=mk(A);{const sa=Math.random()*6.283,sr=3+Math.random()*8;me.g.position.set(Math.cos(sa)*sr,0,Math.sin(sa)*sr)}const remotes={};
 function rebuild(){const p=me.g.position.clone(),r=me.g.rotation.y;S.remove(me.g);me=mk(A);me.g.position.copy(p);me.g.rotation.y=r;pdirty=1}
 
@@ -270,7 +276,7 @@ const AL={sled:'🎿 썰매 타기',wish:'🌠 소원 남기기',hall:'📖 방�
 // ---------- loop ----------
 function resize(){R.setSize(innerWidth,innerHeight,false);C.aspect=innerWidth/innerHeight;C.updateProjectionMatrix();applyView()}addEventListener('resize',resize);resize();
 let last=performance.now(),pt=0,face=0,lastP='';
-function tick(t){requestAnimationFrame(tick);const dt=Math.min((t-last)/1000,.05);last=t;const p=me.g.position;
+function tick(t){requestAnimationFrame(tick);const dt=Math.min((t-last)/1000,.05);last=t;if(t-envT>500){envT=t;applyEnv()}const p=me.g.position;
  let mx=(K.arrowright||K.d?1:0)-(K.arrowleft||K.a?1:0)+jv.x,mz=(K.arrowdown||K.s?1:0)-(K.arrowup||K.w?1:0)+jv.y;const L=Math.hypot(mx,mz);
  if(!creating&&!G&&L>.12){const s=Math.min(1,L);mx/=L;mz/=L;p.x=Math.max(-62,Math.min(62,p.x+mx*7*s*dt));p.z=Math.max(-62,Math.min(62,p.z+mz*7*s*dt));face=Math.atan2(mx,mz);p.y=Math.abs(Math.sin(t*.012))*.18}else p.y=0;
  if(creating)face+=dt*.9;let d=face-me.g.rotation.y;d=Math.atan2(Math.sin(d),Math.cos(d));me.g.rotation.y+=d*Math.min(1,dt*12);
@@ -279,8 +285,8 @@ function tick(t){requestAnimationFrame(tick);const dt=Math.min((t-last)/1000,.05
   if(!b.own&&Math.hypot(b.m.position.x-p.x,b.m.position.z-p.z)<1.1){me.say('앗 차가워!');SFX.hit();p.x+=b.dx*2;p.z+=b.dz*2;b.t=9}
   if(b.t>1.6){S.remove(b.m);balls.splice(i,1)}}
  const pa=snowP.geometry.attributes.position;for(let i=0;i<N;i++){let y=pa.array[i*3+1]-dt*(2+i%5*.3);if(y<0)y+=30;pa.array[i*3+1]=y;pa.array[i*3]+=Math.sin(t*.001+i)*dt*.4}pa.needsUpdate=true;snowP.position.set(p.x,0,p.z);
- cz=Z.find(z=>Math.hypot(p.x-z.x,p.z-z.z)<z.r)||{n:'캠퍼스 산책로',k:'walk'};$('#loc').textContent='📍 '+cz.n;const ab=$('#act');ab.hidden=!AL[cz.k];if(AL[cz.k])ab.textContent=AL[cz.k];
- if(creating)C.position.lerp(new T.Vector3(p.x,4.6,p.z+10),.2),C.lookAt(p.x,2.5,p.z);else{const v=VW[vi];C.position.lerp(new T.Vector3(p.x,v[1],p.z+v[2]),Math.min(1,dt*5));C.lookAt(p.x,vi==1?1.5:0,p.z-(vi==2?0:1))}
+ cz=Z.find(z=>Math.hypot(p.x-z.x,p.z-z.z)<z.r)||{n:'캠퍼스 산책로',k:'walk'};$('#loc').textContent='📍 '+cz.n+' '+ico;const ab=$('#act');ab.hidden=!AL[cz.k];if(AL[cz.k])ab.textContent=AL[cz.k];
+ if(creating)C.position.lerp(new T.Vector3(p.x,4.4,p.z+11.5),.2),C.lookAt(p.x,2,p.z);else{const v=VW[vi];C.position.lerp(new T.Vector3(p.x,v[1],p.z+v[2]),Math.min(1,dt*5));C.lookAt(p.x,vi==1?1.5:0,p.z-(vi==2?0:1))}
  pt+=dt;if(room&&pt>.12){pt=0;const s=JSON.stringify([p.x.toFixed(1),p.z.toFixed(1),face.toFixed(2)]);if(s!==lastP||pdirty){lastP=s;pdirty=0;room.presence({x:+p.x.toFixed(1),z:+p.z.toFixed(1),r:+face.toFixed(2),a:A}).catch(()=>{})}}
  sledStep(dt);R.render(S,C)}
 requestAnimationFrame(tick);
